@@ -7,9 +7,11 @@ const { engine } = require('express-handlebars');
 const { BOOKS, getBook } = require('./books');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
+// Hosting platforms such as Render serve the app over HTTPS through a proxy,　so the app itself receives plain HTTP. Trusting that one (1) proxy makes req.protocol 'https', which keeps the Stripe return_url on HTTPS.
+app.set('trust proxy', 1);
 // Available in every view as {{appName}}
 app.locals.appName = 'BookStripes';
 
