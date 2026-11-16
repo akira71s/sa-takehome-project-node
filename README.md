@@ -259,16 +259,13 @@ An unknown book, an invalid session ID, or a failed Stripe API call leads to a f
 
 ## Docs
 
-**Choosing the integration**
-- [Payment Element overview](https://docs.stripe.com/payments/payment-element): which server-side APIs it works with
-- [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions
-
+*
 **Building it**
+- [Payment Element overview](https://docs.stripe.com/payments/payment-element): get to know about Payment Element
+  - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
+- [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions over Payment Inetnets API
 - [Payments quickstart (Checkout Sessions + Payment Element)](https://docs.stripe.com/payments/quickstart): the starting point for the overall flow
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
-- [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
-- [Fulfill orders](https://docs.stripe.com/checkout/fulfillment) and [Webhooks](https://docs.stripe.com/webhooks): fulfilling from both the webhook and the landing page, and verifying signatures
-- [Stripe CLI](https://docs.stripe.com/stripe-cli): forwarding webhooks to `localhost`
 
 **Webhooks**
 - [Receive Stripe events in your webhook endpoint](https://docs.stripe.com/webhooks): setting up the `/webhook` endpoint and registering it in the Dashboard
