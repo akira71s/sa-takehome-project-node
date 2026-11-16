@@ -12,8 +12,6 @@ By [akira71s](https://github.com/akira71s)
 
 Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. The demo runs in Stripe test mode, so no real money is charged. It's hosted on Render's free tier and may take up to 30 seconds to wake up on the first visit.
 
-Webhooks aren't enabled on the live demo. To see them in action, run the app locally with the Stripe CLI (see [Receive webhooks](#4-receive-webhooks-optional)).
-
 ## Contents
 
 - [How to run the app](#how-to-run-the-app)
@@ -53,8 +51,9 @@ Then open `.env` and paste in your **test-mode** keys from the [API keys page](h
 |---|---|---|
 | `STRIPE_SECRET_KEY` | `sk_test_` | Server only. Never share or commit it. |
 | `STRIPE_PUBLISHABLE_KEY` | `pk_test_` | Sent to the browser to initialize Stripe.js. |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_` | Optional. Server only. Verifies webhook events (see [step 4](#4-receive-webhooks-optional)). |
 
-The app checks your keys when it starts. If a key is missing or empty, the two keys are swapped, or you've pasted live keys instead of test keys, it stops and tells you exactly what to fix.
+The app checks these values when it starts. If a key is missing or empty, the two keys are swapped, you've pasted live keys instead of test keys, or the webhook secret doesn't start with `whsec_`, it stops and tells you exactly what to fix.
 
 ### 3. Run
 
@@ -133,7 +132,7 @@ Use any future expiry date and any CVC. Stripe's [testing docs](https://docs.str
 2. **Show the payment form.** The server creates a Checkout Session at the book's catalog price, and Stripe.js mounts the Payment Element with the session's client secret.
 3. **Pay.** The customer enters their email and card details and clicks **Pay**. Card details go straight to Stripe, never through the app's server, and Stripe handles 3D Secure if the bank requires it.
 4. **See the confirmation.** Stripe redirects to `/success`, where the server looks up the payment and shows the book, the amount charged, and the PaymentIntent ID.
-5. **Confirm via webhook.** Stripe also sends a `checkout.session.completed` webhook. The server verifies its signature and records that the payment is confirmed, even if the customer never reaches `/success`.
+5. **Confirm via webhook.** Stripe also sends a `checkout.session.completed` webhook. The server verifies its signature and logs the confirmed payment, even if the customer never reaches `/success`.
 
 If a payment fails, the customer sees the error under the form and can try again. If a payment method takes time to confirm, the confirmation page shows "Payment processing", and refreshing it later shows the result.
 
@@ -223,10 +222,14 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
 | File | What it does |
 |---|---|
 | [`public/js/checkout.js`](public/js/checkout.js) | Mounts the Payment Element and confirms the payment |
-| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents (renamed from `custom.js`) |
+| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents |
 | [`public/css/custom.css`](public/css/custom.css) | Styles |
 
 ## Key design decisions
+
+### How I approached it
+
+I started by running the boilerplate and reading its code, to see what was already there and what was missing. Then I read Stripe's Payment Element overview and quickstart to understand the whole flow before writing any code. From there I worked in this order: choose the server-side API, bring the outdated dependencies up to date, build the checkout and confirmation pages, add startup checks and error handling, and finally deploy the app and add a webhook endpoint. The sections below explain the main decisions along the way.
 
 ### Checkout Sessions API vs Payment Intents API
 
@@ -256,11 +259,11 @@ The `/webhook` endpoint verifies each event's signature and logs confirmed and f
 
 ### Configuration mistakes fail early
 
-`config.js` runs before anything else and checks that both Stripe keys are set and look right. They can come from a local `.env` file or, when deployed, from the host's environment variables. Missing keys, swapped keys, or live keys stop the app at startup with a clear message, instead of surfacing later as a confusing error in the middle of a payment.
+`config.js` runs before anything else and checks that both Stripe keys are set and look right. They can come from a local `.env` file or, when deployed, from the host's environment variables. Missing keys, swapped keys, live keys, or a malformed webhook secret stop the app at startup with a clear message, instead of surfacing later as a confusing error in the middle of a payment.
 
 ### Errors never show internals
 
-An unknown book, an invalid session ID, or a failed Stripe API call leads to a friendly message or a redirect. Details are logged on the server, never shown in the browser.
+An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API call leads to a friendly message or a redirect. Details are logged on the server, never shown in the browser.
 
 ## Docs
 
@@ -309,11 +312,17 @@ Because the name includes **"secret"**, I wasn't sure this was safe at first, si
 
 So the worst someone could do with a client secret is pay for that book at the correct price. It still needs care: the app doesn't log or store it, sends it only to the customer who started the checkout, and in production the page would be served over HTTPS.
 
+### A placeholder secret that blocked a deploy
+
+After I added the webhook endpoint, the live demo kept running the old code: `POST /webhook` returned 404 even though the new code was on `main`. Render's branch setting was correct, so I checked the deploy history and found that the latest deploy had failed. I had left a placeholder value in `STRIPE_WEBHOOK_SECRET` on Render, and the app's startup check rejects any value that doesn't start with `whsec_`. Render kept the previous version running, so nothing looked broken.
+
+Replacing the placeholder with the endpoint's real signing secret fixed it. The startup check did its job: without it, the app would have started and then rejected every webhook. It also taught me to look at the deploy logs first when a deployed app doesn't match the code.
+
 ### Bringing an outdated boilerplate up to date
 
 The boilerplate was last updated in September 2021, about five years ago, and its JavaScript, CSS, and npm packages were all out of date. I modernized them before building the payment flow. Keeping packages on supported versions matters most for security: old versions stop receiving fixes for known vulnerabilities, a risk no store that handles payments should take.
 
-**JavaScript.** I replaced `var` (e.g. [app.js](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/app.js#L7)) with `const` and `let`, which are block-scoped and make it clear which values are meant to change. 
+**JavaScript.** I replaced `var` (e.g. [app.js](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/app.js#L7)) with `const` and `let`, which are block-scoped and make it clear which values are meant to change. I also renamed `custom.js` to `format-amounts.js` so its name says what it does.
 
 **CSS and layout.**
 
@@ -367,4 +376,4 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 
 ### Payment Intents API for customization
 
-I'd switch to the [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
+- I'd switch to the [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
