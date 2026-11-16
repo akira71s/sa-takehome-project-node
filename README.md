@@ -223,7 +223,7 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
 | File | What it does |
 |---|---|
 | [`public/js/checkout.js`](public/js/checkout.js) | Mounts the Payment Element and confirms the payment |
-| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents |
+| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents (renamed from `custom.js`) |
 | [`public/css/custom.css`](public/css/custom.css) | Styles |
 
 ## Key design decisions
@@ -313,7 +313,7 @@ So the worst someone could do with a client secret is pay for that book at the c
 
 The boilerplate was last updated in September 2021, about five years ago, and its JavaScript, CSS, and npm packages were all out of date. I modernized them before building the payment flow. Keeping packages on supported versions matters most for security: old versions stop receiving fixes for known vulnerabilities, a risk no store that handles payments should take.
 
-**JavaScript.** I replaced `var` (e.g. [app.js](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/app.js#L7)) with `const` and `let`, which are block-scoped and make it clear which values are meant to change. I also renamed `custom.js` to `format-amounts.js` so its name says what it does.
+**JavaScript.** I replaced `var` (e.g. [app.js](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/app.js#L7)) with `const` and `let`, which are block-scoped and make it clear which values are meant to change. 
 
 **CSS and layout.**
 
@@ -367,4 +367,4 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 
 ### Payment Intents API for customization
 
-- I'd switch to the [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
+I'd switch to the [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
