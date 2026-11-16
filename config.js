@@ -27,14 +27,18 @@ function fail(message, hint) {
 }
 
 /**
- * Loads `.env` from the project root into `process.env`, checks that the
- * required variables are set, and validates the Stripe key formats.
+ * Loads `.env` from the project root into `process.env` if it exists, checks
+ * that the required variables are set, and validates the Stripe key formats.
+ *
+ * Locally, the keys usually come from `.env`. On a hosting platform there's no
+ * `.env` file, and the keys are set as environment variables instead. Variables
+ * that are already set are never overwritten by `.env`.
  *
  * Uses Node's built-in `process.loadEnvFile()` (Node 20.12+ / 21.7+), so the
  * `dotenv` package isn't needed.
  *
- * Exits with code 1 if `.env` is missing, a required variable is missing or
- * empty, or a Stripe key has the wrong format (see validateStripeKeys).
+ * Exits with code 1 if a required variable is missing or empty, or a Stripe key
+ * has the wrong format (see validateStripeKeys).
  *
  * @returns {void}
  * @throws {Error} Re-throws any error from reading `.env` other than a missing
@@ -45,18 +49,18 @@ function loadEnv() {
   try {
     process.loadEnvFile(path.join(__dirname, '.env'));
   } catch (err) {
-    // ENOENT ("Error NO ENTry"): the .env file doesn't exist
-    if (err.code === 'ENOENT') {
-      fail('No .env file found.', 'Copy sample.env to .env and fill in your Stripe test keys.');
+    // ENOENT ("Error NO ENTry"): no .env file. That's expected on a hosting platform, where the keys are set as environment variables instead.
+    if (err.code !== 'ENOENT') {
+      throw err;
     }
-    throw err;
   }
 
   const missing = REQUIRED_ENV.filter((name) => !process.env[name]);
   if (missing.length > 0) {
     fail(
       `Missing required environment variables: ${missing.join(', ')}`,
-      'Add them to .env (see sample.env for the full list).',
+      'Locally: copy sample.env to .env and add your Stripe test keys. ' +
+        'On a host: set them in its environment settings.',
     );
   }
 
@@ -78,7 +82,7 @@ function validateStripeKeys() {
   // Check for swapped keys first: it's the most common mistake,
   // so it gets its own message.
   if (secretKey.startsWith('pk_') && publishableKey.startsWith('sk_')) {
-    fail('STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY look swapped.', 'Swap their values in .env.');
+    fail('STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY look swapped.', 'Swap their values.');
   }
 
   const problems = [];
@@ -91,7 +95,7 @@ function validateStripeKeys() {
 
   if (problems.length > 0) {
     fail(
-      'Invalid Stripe keys in .env:\n  - ' + problems.join('\n  - '),
+      'Invalid Stripe keys:\n  - ' + problems.join('\n  - '),
       `Use your test-mode keys from ${API_KEYS_URL}`,
     );
   }
