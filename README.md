@@ -106,8 +106,8 @@ Use any future expiry date and any CVC. Stripe's [testing docs](https://docs.str
 | Card number | What happens |
 |---|---|
 | `4000 0025 0000 3155` | Asks for 3D Secure authentication. Click **Complete** in the pop-up to finish the payment, or **Fail** to see how a failed authentication is handled. <br> <img width="200" alt="3D Secure test pop-up" src="https://github.com/user-attachments/assets/efb4e948-ff0b-4402-94ec-43ae6eaddd22" /> |
-| `4000 0000 0000 0002` | Declined. The error appears under the payment form, and you can try again. |
-| `4000 0000 0000 9995` | Declined for insufficient funds. |
+| `4000 0000 0000 0002` | Declined. The error appears under the payment form, and you can try again. <br> <img width="200" alt="Declined card error message" src="https://github.com/user-attachments/assets/e0716231-d64b-40dd-b6c9-1a26c9702ca6" /> |
+| `4000 0000 0000 9995` | Declined for insufficient funds. <br> <img width="200" alt="Insufficient funds error message" src="https://github.com/user-attachments/assets/83cdd089-b461-4472-b05e-13b37dac74e3" /> |
 
 ### Find the payment in the Stripe Dashboard
 
