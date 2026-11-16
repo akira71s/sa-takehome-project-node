@@ -15,7 +15,7 @@ Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. T
 ## Contents
 
 - [How to run the app](#how-to-run-the-app)
-- [Make a test payment](#make-a-test-payment)
+- [How to make a test payment](#make-a-test-payment)
 - [Architecture](#architecture)
 - [Key design decisions](#key-design-decisions)
 - [Docs](#docs)
@@ -82,7 +82,7 @@ Copy the `whsec_...` signing secret it prints into `.env` as `STRIPE_WEBHOOK_SEC
 
 When deployed, register `https://<your-host>/webhook` as a webhook endpoint in the Stripe Dashboard with the same three events, and set that endpoint's signing secret as `STRIPE_WEBHOOK_SECRET` on the host.
 
-## Make a test payment
+## How to make a test payment
 
 Use the [live demo](https://akira71s-sa-takehome-project-node.onrender.com/) or a local copy at http://localhost:3000. To run it locally, follow [How to run the app](#how-to-run-the-app).
 
