@@ -47,11 +47,11 @@ cp sample.env .env
 
 Then open `.env` and paste in your **test-mode** keys from the [API keys page](https://dashboard.stripe.com/test/apikeys) in the Stripe Dashboard:
 
-| Variable | Starts with | Where it's used |
-|---|---|---|
-| `STRIPE_SECRET_KEY` | `sk_test_` | Server only. Never share or commit it. |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_test_` | Sent to the browser to initialize Stripe.js. |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_` | Optional. Server only. Verifies webhook events (see [step 4](#4-receive-webhooks-optional)). |
+| Variable                 | Starts with | Where it's used                                                                              |
+| ------------------------ | ----------- | -------------------------------------------------------------------------------------------- |
+| `STRIPE_SECRET_KEY`      | `sk_test_`  | Server only. Never share or commit it.                                                       |
+| `STRIPE_PUBLISHABLE_KEY` | `pk_test_`  | Sent to the browser to initialize Stripe.js.                                                 |
+| `STRIPE_WEBHOOK_SECRET`  | `whsec_`    | Optional. Server only. Verifies webhook events (see [step 4](#4-receive-webhooks-optional)). |
 
 The app checks these values when it starts. If a key is missing or empty, the two keys are swapped, you've pasted live keys instead of test keys, or the webhook secret doesn't start with `whsec_`, it stops and tells you exactly what to fix.
 
@@ -64,6 +64,10 @@ npm start
 Then open [http://localhost:3000](http://localhost:3000).
 
 During development, use `npm run dev` instead. It restarts the server automatically when you edit a server-side file.
+
+### Format and lint
+
+Run Prettier across the repository with `npm run format`, and check formatting without changing files with `npm run format:check`. Run ESLint on the JavaScript files with `npm run lint`.
 
 ### 4. Receive webhooks (optional)
 
@@ -106,11 +110,11 @@ Use the [live demo](https://akira71s-sa-takehome-project-node.onrender.com/) or 
 
 Use any future expiry date and any CVC. Stripe's [testing docs](https://docs.stripe.com/testing) list many more scenarios.
 
-| Card number | What happens |
-|---|---|
+| Card number           | What happens                                                                                                                                                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `4000 0025 0000 3155` | Asks for 3D Secure authentication. Click **Complete** in the pop-up to finish the payment, or **Fail** to see how a failed authentication is handled. <br> <img width="200" alt="3D Secure test pop-up" src="https://github.com/user-attachments/assets/efb4e948-ff0b-4402-94ec-43ae6eaddd22" /> |
-| `4000 0000 0000 0002` | Declined. The error appears under the payment form, and you can try again. <br> <img width="200" alt="Declined card error message" src="https://github.com/user-attachments/assets/e0716231-d64b-40dd-b6c9-1a26c9702ca6" /> |
-| `4000 0000 0000 9995` | Declined for insufficient funds. <br> <img width="200" alt="Insufficient funds error message" src="https://github.com/user-attachments/assets/83cdd089-b461-4472-b05e-13b37dac74e3" /> |
+| `4000 0000 0000 0002` | Declined. The error appears under the payment form, and you can try again. <br> <img width="200" alt="Declined card error message" src="https://github.com/user-attachments/assets/e0716231-d64b-40dd-b6c9-1a26c9702ca6" />                                                                      |
+| `4000 0000 0000 9995` | Declined for insufficient funds. <br> <img width="200" alt="Insufficient funds error message" src="https://github.com/user-attachments/assets/83cdd089-b461-4472-b05e-13b37dac74e3" />                                                                                                           |
 
 ### Find the payment in the Stripe Dashboard
 
@@ -169,11 +173,11 @@ sequenceDiagram
 
 ### Stripe APIs used
 
-| API | Where | Purpose |
-|---|---|---|
-| [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions) (`ui_mode: 'elements'`) | Server | Create the session with the book's price (`create`); get the payment result on the confirmation page (`retrieve`) |
-| [Payment Element](https://docs.stripe.com/payments/payment-element) via [Stripe.js](https://docs.stripe.com/js/custom_checkout) | Browser | Collect payment details, add the customer's email, and confirm the payment |
-| [Webhooks](https://docs.stripe.com/webhooks) | Server | Receive `checkout.session.*` events and verify their signatures |
+| API                                                                                                                             | Where   | Purpose                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
+| [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions) (`ui_mode: 'elements'`)                                  | Server  | Create the session with the book's price (`create`); get the payment result on the confirmation page (`retrieve`) |
+| [Payment Element](https://docs.stripe.com/payments/payment-element) via [Stripe.js](https://docs.stripe.com/js/custom_checkout) | Browser | Collect payment details, add the customer's email, and confirm the payment                                        |
+| [Webhooks](https://docs.stripe.com/webhooks)                                                                                    | Server  | Receive `checkout.session.*` events and verify their signatures                                                   |
 
 The PaymentIntent ID comes from the Checkout Session: the server expands `payment_intent` when it retrieves the session, so the app never calls the Payment Intents API directly.
 
@@ -200,30 +204,30 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
 
 **Server-side (Node.js)**
 
-| File | What it does |
-|---|---|
-| [`app.js`](app.js) | Express server: routes, Stripe API calls, webhooks, error handling |
-| [`config.js`](config.js) | Loads `.env` and checks the Stripe keys and webhook secret at startup |
-| [`books.js`](books.js) | Book catalog (title, author, price, cover) and lookup by ID |
-| [`sample.env`](sample.env) | Template for `.env` |
+| File                       | What it does                                                          |
+| -------------------------- | --------------------------------------------------------------------- |
+| [`app.js`](app.js)         | Express server: routes, Stripe API calls, webhooks, error handling    |
+| [`config.js`](config.js)   | Loads `.env` and checks the Stripe keys and webhook secret at startup |
+| [`books.js`](books.js)     | Book catalog (title, author, price, cover) and lookup by ID           |
+| [`sample.env`](sample.env) | Template for `.env`                                                   |
 
 **Pages (Handlebars templates, rendered on the server)**
 
-| File | Page |
-|---|---|
-| [`views/layouts/main.hbs`](views/layouts/main.hbs) | Shared layout; loads Stripe.js |
-| [`views/index.hbs`](views/index.hbs) | Store page, built from the catalog |
-| [`views/checkout.hbs`](views/checkout.hbs) | Checkout page with the Payment Element |
-| [`views/success.hbs`](views/success.hbs) | Confirmation with the amount and PaymentIntent ID |
-| [`views/error.hbs`](views/error.hbs) | Friendly error page |
+| File                                               | Page                                              |
+| -------------------------------------------------- | ------------------------------------------------- |
+| [`views/layouts/main.hbs`](views/layouts/main.hbs) | Shared layout; loads Stripe.js                    |
+| [`views/index.hbs`](views/index.hbs)               | Store page, built from the catalog                |
+| [`views/checkout.hbs`](views/checkout.hbs)         | Checkout page with the Payment Element            |
+| [`views/success.hbs`](views/success.hbs)           | Confirmation with the amount and PaymentIntent ID |
+| [`views/error.hbs`](views/error.hbs)               | Friendly error page                               |
 
 **Client-side (browser)**
 
-| File | What it does |
-|---|---|
-| [`public/js/checkout.js`](public/js/checkout.js) | Mounts the Payment Element and confirms the payment |
-| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents |
-| [`public/css/custom.css`](public/css/custom.css) | Styles |
+| File                                                         | What it does                                        |
+| ------------------------------------------------------------ | --------------------------------------------------- |
+| [`public/js/checkout.js`](public/js/checkout.js)             | Mounts the Payment Element and confirms the payment |
+| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents            |
+| [`public/css/custom.css`](public/css/custom.css)             | Styles                                              |
 
 ## Key design decisions
 
@@ -268,6 +272,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 ## Docs
 
 **Building it**
+
 - [Payment Element overview](https://docs.stripe.com/payments/payment-element): what the Payment Element is and which APIs it works with
   - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
 - [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions over the Payment Intents API
@@ -275,20 +280,24 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
 
 **Webhooks**
+
 - [Receive Stripe events in your webhook endpoint](https://docs.stripe.com/webhooks): setting up the `/webhook` endpoint and registering it in the Dashboard
 - [Verify webhook signatures](https://docs.stripe.com/webhooks/signature): why signature checks need the raw request body
 - [Fulfill orders](https://docs.stripe.com/checkout/fulfillment): which `checkout.session.*` events to handle, and the production design noted in the code's `TODO`s
 - [Stripe CLI](https://docs.stripe.com/stripe-cli): forwarding events to `localhost` with `stripe listen`
 
 **API references**
+
 - [Create a Checkout Session](https://docs.stripe.com/api/checkout/sessions/create): server-side parameters such as `ui_mode` and `return_url`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
 - [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `loadActions()`
 
 **Testing**
+
 - [Testing](https://docs.stripe.com/testing): test cards, including 3D Secure and declines
 
 **Node.js**
+
 - [`process.loadEnvFile()`](https://nodejs.org/api/process.html#processloadenvfilepath): loading `.env` without the `dotenv` package
 
 ## Challenges
@@ -298,17 +307,17 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 The [quickstart](https://docs.stripe.com/payments/quickstart?client=html)'s server sends the session's client secret to the browser:
 
 ```javascript
-const session = await stripe.checkout.sessions.create({ ui_mode: "elements", /* ... */ });
+const session = await stripe.checkout.sessions.create({ ui_mode: 'elements' /* ... */ });
 res.send({ clientSecret: session.client_secret });
 ```
 
 Because the name includes **"secret"**, I wasn't sure this was safe at first, since the secret key must never leave the server. The [Checkout Session object reference](https://docs.stripe.com/api/checkout/sessions/object#checkout_session_object-client_secret) cleared it up: for `ui_mode: elements`, the client secret is meant to be used on the front end.
 
-| | Secret key (`sk_test_...`) | Checkout Session client secret |
-|---|---|---|
-| Scope | The whole Stripe account | One Checkout Session |
-| What it allows | Almost anything, such as charges, refunds, and customer data (unless [restricted](https://docs.stripe.com/keys/restricted-api-keys)) | Only completing that one session |
-| Can it change the price? | Yes | No. The amount is fixed when the server creates the session. |
+|                          | Secret key (`sk_test_...`)                                                                                                           | Checkout Session client secret                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Scope                    | The whole Stripe account                                                                                                             | One Checkout Session                                         |
+| What it allows           | Almost anything, such as charges, refunds, and customer data (unless [restricted](https://docs.stripe.com/keys/restricted-api-keys)) | Only completing that one session                             |
+| Can it change the price? | Yes                                                                                                                                  | No. The amount is fixed when the server creates the session. |
 
 So the worst someone could do with a client secret is pay for that book at the correct price. It still needs care: the app doesn't log or store it, sends it only to the customer who started the checkout, and in production the page would be served over HTTPS.
 
@@ -331,13 +340,13 @@ The boilerplate was last updated in September 2021, about five years ago, and it
 
 **npm packages.**
 
-| Package | Before | After | Notes |
-|---|---|---|---|
-| `stripe` | `^8.137.0` | `^23.1.0` | Latest as of November 16, 2026 ([npm](https://www.npmjs.com/package/stripe)). Checkout Sessions with `ui_mode: 'elements'` needs a current SDK. |
-| `express` | 4 | 5 | Express 5 forwards errors thrown in `async` route handlers, which matters for routes that call the Stripe API. |
-| `express-handlebars` | 5 | 9 | Version 6 and later export `engine` instead of a function, so I updated the setup in `app.js`. |
-| `path` | `^0.12.7` | removed | An old browser polyfill. The app uses Node's built-in module, `require('node:path')`. |
-| `dotenv` | `^10.0.0` | removed | Node 21.7.0 and later load `.env` files natively with [`process.loadEnvFile()`](https://nodejs.org/en/blog/release/v21.7.0#loading-and-parsing-environment-variables). |
+| Package              | Before     | After     | Notes                                                                                                                                                                  |
+| -------------------- | ---------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `stripe`             | `^8.137.0` | `^23.1.0` | Latest as of November 16, 2026 ([npm](https://www.npmjs.com/package/stripe)). Checkout Sessions with `ui_mode: 'elements'` needs a current SDK.                        |
+| `express`            | 4          | 5         | Express 5 forwards errors thrown in `async` route handlers, which matters for routes that call the Stripe API.                                                         |
+| `express-handlebars` | 5          | 9         | Version 6 and later export `engine` instead of a function, so I updated the setup in `app.js`.                                                                         |
+| `path`               | `^0.12.7`  | removed   | An old browser polyfill. The app uses Node's built-in module, `require('node:path')`.                                                                                  |
+| `dotenv`             | `^10.0.0`  | removed   | Node 21.7.0 and later load `.env` files natively with [`process.loadEnvFile()`](https://nodejs.org/en/blog/release/v21.7.0#loading-and-parsing-environment-variables). |
 
 ```bash
 npm install stripe@latest express@latest express-handlebars@latest

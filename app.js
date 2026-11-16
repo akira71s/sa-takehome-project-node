@@ -63,7 +63,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
       console.warn(`Payment failed for Checkout Session ${session.id}`);
       break;
     default:
-      // Other event types aren't used by this app.
+    // Other event types aren't used by this app.
   }
 
   res.json({ received: true });
@@ -124,14 +124,16 @@ app.post('/create-checkout-session', async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'elements',
       mode: 'payment',
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          unit_amount: book.amount,
-          product_data: { name: book.title },
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: book.amount,
+            product_data: { name: book.title },
+          },
+          quantity: 1,
         },
-        quantity: 1,
-      }],
+      ],
       // Stripe replaces {CHECKOUT_SESSION_ID} with the real ID when redirecting
       return_url: `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`,
       metadata: { bookId },
@@ -189,8 +191,9 @@ app.get('/success', async (req, res) => {
     paymentIntentId: paymentIntent?.id,
     book: getBook(bookId),
     email: session.customer_details?.email,
-    date: new Date((paymentIntent?.created ?? session.created) * 1000)
-      .toLocaleDateString('en-US', { dateStyle: 'long' }),
+    date: new Date((paymentIntent?.created ?? session.created) * 1000).toLocaleDateString('en-US', {
+      dateStyle: 'long',
+    }),
   });
 });
 
