@@ -2,6 +2,8 @@
 
 By [akira71s](https://github.com/akira71s)
 
+**Live demo:** https://akira71s-sa-takehome-project-node.onrender.com/ (hosted on Render)
+
 **BookStripes** is an online bookstore built with Node.js and Express. The boilerplate store let customers browse books but had no way to take payments. I added checkout with the **Stripe Payment Element**, embedded directly in the store's own checkout page. After paying, customers see a confirmation with the amount charged and the **Stripe PaymentIntent ID** (`pi_...`).
 
 <p align="center">
