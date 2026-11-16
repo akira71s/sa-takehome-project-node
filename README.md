@@ -267,6 +267,8 @@ An unknown book, an invalid session ID, or a failed Stripe API call leads to a f
 - [Payments quickstart (Checkout Sessions + Payment Element)](https://docs.stripe.com/payments/quickstart): the starting point for the overall flow
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
 - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
+- [Fulfill orders](https://docs.stripe.com/checkout/fulfillment) and [Webhooks](https://docs.stripe.com/webhooks): fulfilling from both the webhook and the landing page, and verifying signatures
+- [Stripe CLI](https://docs.stripe.com/stripe-cli): forwarding webhooks to `localhost`
 
 **Webhooks**
 - [Receive Stripe events in your webhook endpoint](https://docs.stripe.com/webhooks): setting up the `/webhook` endpoint and registering it in the Dashboard
@@ -355,6 +357,7 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 - **[Product Catalog](https://docs.stripe.com/products-prices/manage-prices).** Change prices in the Dashboard instead of editing and redeploying `books.js`. 
 - **Saved customers.** Stripe Customers with saved payment methods make repeat purchases faster.
 - **A branded payment form.** Style the Payment Element with the [Appearance API](https://docs.stripe.com/elements/appearance-api) to match the store instead of using the default `stripe` theme.
+- **Live status updates.** For payment methods that take time to confirm, push the result to a waiting confirmation page when the webhook arrives, instead of asking the customer to refresh. [Server-Sent Events](https://developer.mozilla.org/docs/Web/API/Server-sent_events) would fit better than WebSockets here: updates only flow from the server to the browser, and SSE needs no extra packages and reconnects automatically.
 
 ### Production readiness
 
