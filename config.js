@@ -79,8 +79,12 @@ function checkWebhookSecret() {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    console.warn(styleText('yellow',
-      'STRIPE_WEBHOOK_SECRET is not set, so webhooks are disabled. See "Receive webhooks" in the README.'));
+    console.warn(
+      styleText(
+        'yellow',
+        'STRIPE_WEBHOOK_SECRET is not set, so webhooks are disabled. See "Receive webhooks" in the README.',
+      ),
+    );
     return;
   }
 
@@ -112,7 +116,9 @@ function validateStripeKeys() {
 
   const problems = [];
   if (!/^(sk|rk)_test_/.test(secretKey)) {
-    problems.push('STRIPE_SECRET_KEY should start with sk_test_ (or rk_test_ for a restricted key).');
+    problems.push(
+      'STRIPE_SECRET_KEY should start with sk_test_ (or rk_test_ for a restricted key).',
+    );
   }
   if (!publishableKey.startsWith('pk_test_')) {
     problems.push('STRIPE_PUBLISHABLE_KEY should start with pk_test_.');

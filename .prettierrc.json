@@ -1,0 +1,6 @@
+{
+  "plugins": ["@poliklot/prettier-plugin-handlebars"],
+  "singleQuote": true,
+  "printWidth": 100,
+  "trailingComma": "all"
+}
