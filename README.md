@@ -2,13 +2,14 @@
 
 By [akira71s](https://github.com/akira71s)
 
-**Live demo:** https://akira71s-sa-takehome-project-node.onrender.com/ (hosted on Render)
-
 **BookStripes** is an online bookstore built with Node.js and Express. The boilerplate store let customers browse books but had no way to take payments. I added checkout with the **Stripe Payment Element**, embedded directly in the store's own checkout page. After paying, customers see a confirmation with the amount charged and the **Stripe PaymentIntent ID** (`pi_...`).
 
 <p align="center">
   <img alt="BookStripes store page" src="https://github.com/user-attachments/assets/2e29000c-c936-4d49-ae51-95829a5620cf" />
 </p>
+
+**Live demo:** https://akira71s-sa-takehome-project-node.onrender.com/
+Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. The demo runs in Stripe test mode, so no real money is charged. It's hosted on Render's free tier and may take a few seconds to wake up on the first visit.
 
 ## Contents
 
@@ -63,6 +64,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 During development, use `npm run dev` instead. It restarts the server automatically when you edit a server-side file.
 
 ## Make a test payment
+
+Use the [live demo](https://akira71s-sa-takehome-project-node.onrender.com/) or a local copy at http://localhost:3000. To run it locally, follow [How to run the app](#how-to-run-the-app).
 
 1. Pick a book and click **Purchase**.
 
