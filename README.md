@@ -321,12 +321,6 @@ Because the name includes **"secret"**, I wasn't sure this was safe at first, si
 
 So the worst someone could do with a client secret is pay for that book at the correct price. It still needs care: the app doesn't log or store it, sends it only to the customer who started the checkout, and in production the page would be served over HTTPS.
 
-### A placeholder secret that blocked a deploy
-
-After I added the webhook endpoint, the live demo kept running the old code: `POST /webhook` returned 404 even though the new code was on `main`. Render's branch setting was correct, so I checked the deploy history and found that the latest deploy had failed. I had left a placeholder value in `STRIPE_WEBHOOK_SECRET` on Render, and the app's startup check rejects any value that doesn't start with `whsec_`. Render kept the previous version running, so nothing looked broken.
-
-Replacing the placeholder with the endpoint's real signing secret fixed it. The startup check did its job: without it, the app would have started and then rejected every webhook. It also taught me to look at the deploy logs first when a deployed app doesn't match the code.
-
 ### Bringing an outdated boilerplate up to date
 
 The boilerplate was last updated in September 2021, about five years ago, and its JavaScript, CSS, and npm packages were all out of date. I modernized them before building the payment flow. Keeping packages on supported versions matters most for security: old versions stop receiving fixes for known vulnerabilities, a risk no store that handles payments should take.
@@ -358,6 +352,9 @@ npm uninstall path dotenv
 ## Extending the app
 
 This app covers the core purchase flow. Because it uses Checkout Sessions, much of what a real store needs is a few extra parameters rather than new logic. Roughly in order of priority:
+
+### AI Agent Integration (Stripe Agent Toolkit)
+Using the [Stripe Agent Toolkit](https://docs.stripe.com/agents) (`@stripe/agent-toolkit`) and Stripe's Model Context Protocol (MCP) server, BookStripes could expose safe, scoped Stripe operations to an LLM-powered shopping assistant. Customers could ask for book recommendations in natural language, generate Payment Links or Checkout Sessions dynamically, and check order or refund statuses—governed by restricted API keys with least-privilege permissions.
 
 ### Reliable order fulfillment
 
