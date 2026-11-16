@@ -55,5 +55,9 @@ function getBook(bookId) {
   return typeof bookId === 'string' && Object.hasOwn(BOOKS, bookId) ? BOOKS[bookId] : undefined;
 }
 
-// Freeze so prices can't be changed by accident at runtime
-module.exports = { BOOKS: Object.freeze(BOOKS), getBook };
+// Freeze the catalog and every book in it, so prices can't be changed by
+// accident at runtime. Object.freeze is shallow, so each book is frozen too.
+Object.values(BOOKS).forEach(Object.freeze);
+Object.freeze(BOOKS);
+
+module.exports = { BOOKS, getBook };

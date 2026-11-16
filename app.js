@@ -196,10 +196,26 @@ app.get('/success', async (req, res) => {
 });
 
 /**
+ * Catch-all for unknown URLs. Shows the friendly error page instead of
+ * Express's default "Cannot GET" page.
+ */
+app.use((req, res) => {
+  res.status(404).render('error', { error: 'Page not found.' });
+});
+
+/**
  * Fallback error handler. Logs the error on the server and shows a friendly
  * page instead of Express's default page, which would expose a stack trace.
+ *
+ * Express recognizes an error handler by its four parameters, so `next` must
+ * stay in the signature even though it isn't used.
  */
 app.use((err, req, res, next) => {
+  // Malformed JSON in a request body is the client's mistake, not a server error.
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON in the request body.' });
+  }
+
   console.error(err);
   res.status(500).render('error', { error: 'Something went wrong. Please try again.' });
 });
