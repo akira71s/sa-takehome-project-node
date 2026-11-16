@@ -65,6 +65,31 @@ function loadEnv() {
   }
 
   validateStripeKeys();
+  checkWebhookSecret();
+}
+
+/**
+ * Checks the optional webhook signing secret. Without it the app still runs,
+ * but the /webhook endpoint is disabled, so only a warning is printed. A value
+ * that is set but malformed stops the app, like the other keys.
+ *
+ * @returns {void}
+ */
+function checkWebhookSecret() {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    console.warn(styleText('yellow',
+      'STRIPE_WEBHOOK_SECRET is not set, so webhooks are disabled. See "Receive webhooks" in the README.'));
+    return;
+  }
+
+  if (!webhookSecret.startsWith('whsec_')) {
+    fail(
+      'STRIPE_WEBHOOK_SECRET should start with whsec_.',
+      'Use the signing secret printed by `stripe listen`, or the one shown for your webhook endpoint in the Stripe Dashboard.',
+    );
+  }
 }
 
 /**
