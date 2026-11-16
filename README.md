@@ -10,7 +10,9 @@ By [akira71s](https://github.com/akira71s)
 
 **Live demo:** https://akira71s-sa-takehome-project-node.onrender.com/
 
-Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. The demo runs in Stripe test mode, so no real money is charged. It's hosted on Render's free tier and may take a few seconds to wake up on the first visit.
+Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. The demo runs in Stripe test mode, so no real money is charged. It's hosted on Render's free tier and may take up to 30 seconds to wake up on the first visit.
+
+Webhooks aren't enabled on the live demo. To see them in action, run the app locally with the Stripe CLI (see [Receive webhooks](#4-receive-webhooks-optional)).
 
 ## Contents
 
@@ -73,12 +75,14 @@ stripe login
 stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded,checkout.session.async_payment_failed --forward-to localhost:3000/webhook
 ```
 
-Copy the `whsec_...` signing secret it prints into `.env` as `STRIPE_WEBHOOK_SECRET`, then restart the app. After a test payment, the server log shows `Payment confirmed for Checkout Session cs_test_...`.
+Copy the `whsec_...` signing secret it prints into `.env` as `STRIPE_WEBHOOK_SECRET`, then restart the app. After a test payment, the Stripe CLI shows the event and the app's `200` response:
 
-```bash
+```text
 2026-11-17 02:16:58   --> checkout.session.completed [evt_1UcTWZEE7XEQE1a6fQJAAOUX]
 2026-11-17 02:16:58  <--  [200] POST http://localhost:3000/webhook [evt_1UcTWZEE7XEQE1a6fQJAAOUX]
 ```
+
+The server log shows `Payment confirmed for Checkout Session cs_test_...`.
 
 When deployed, register `https://<your-host>/webhook` as a webhook endpoint in the Stripe Dashboard with the same three events, and set that endpoint's signing secret as `STRIPE_WEBHOOK_SECRET` on the host.
 
@@ -260,11 +264,10 @@ An unknown book, an invalid session ID, or a failed Stripe API call leads to a f
 
 ## Docs
 
-*
 **Building it**
-- [Payment Element overview](https://docs.stripe.com/payments/payment-element): get to know about Payment Element
+- [Payment Element overview](https://docs.stripe.com/payments/payment-element): what the Payment Element is and which APIs it works with
   - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
-- [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions over Payment Inetnets API
+- [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions over the Payment Intents API
 - [Payments quickstart (Checkout Sessions + Payment Element)](https://docs.stripe.com/payments/quickstart): the starting point for the overall flow
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
 
@@ -352,7 +355,7 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 ### Store features
 
 - **A cart.** Checkout Sessions accepts multiple line items with quantities.
-- **[Product Catalog](https://docs.stripe.com/products-prices/manage-prices).** Change prices in the Dashboard instead of editing and redeploying `books.js`. 
+- **[Product Catalog](https://docs.stripe.com/products-prices/manage-prices).** Change prices in the Dashboard instead of editing and redeploying `books.js`.
 - **Saved customers.** Stripe Customers with saved payment methods make repeat purchases faster.
 - **A branded payment form.** Style the Payment Element with the [Appearance API](https://docs.stripe.com/elements/appearance-api) to match the store instead of using the default `stripe` theme.
 
@@ -364,4 +367,4 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 
 ### Payment Intents API for customization
 
-- Use [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
+- I'd switch to the [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
