@@ -10,7 +10,9 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-// Hosting platforms such as Render serve the app over HTTPS through a proxy,　so the app itself receives plain HTTP. Trusting that one (1) proxy makes req.protocol 'https', which keeps the Stripe return_url on HTTPS.
+// Hosting platforms such as Render serve the app over HTTPS through a proxy,
+// so the app itself receives plain HTTP. Trusting that one (1) proxy makes
+// req.protocol 'https', which keeps the Stripe return_url on HTTPS.
 app.set('trust proxy', 1);
 // Available in every view as {{appName}}
 app.locals.appName = 'BookStripes';
@@ -19,8 +21,54 @@ app.locals.appName = 'BookStripes';
 app.engine('hbs', engine({ defaultLayout: 'main', extname: '.hbs' }));
 app.set('view engine', 'hbs');
 
-// Middleware
 app.use(express.static(path.join(__dirname, 'public')));
+
+/**
+ * POST /webhook
+ * Receives payment events from Stripe, even if the customer never reaches the
+ * confirmation page.
+ *
+ * Registered before express.json(): signature verification needs the raw body.
+ * Responds 400 if the signature is invalid, or 503 if no signing secret is set.
+ * @see https://docs.stripe.com/webhooks
+ * @see https://docs.stripe.com/checkout/fulfillment
+ */
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    return res.status(503).send('Webhooks are not configured.');
+  }
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, req.get('stripe-signature'), secret);
+  } catch (err) {
+    console.warn(`Webhook signature verification failed: ${err.message}`);
+    return res.status(400).send('Invalid signature.');
+  }
+
+  const session = event.data.object;
+  switch (event.type) {
+    case 'checkout.session.completed':
+    case 'checkout.session.async_payment_succeeded':
+      if (session.payment_status !== 'unpaid') {
+        // TODO (production): mark the order as paid in the database and start
+        // fulfillment. Store event.id and skip events that were already
+        // processed, since Stripe can deliver the same event more than once.
+        console.log(`Payment confirmed for Checkout Session ${session.id}`);
+      }
+      break;
+    case 'checkout.session.async_payment_failed':
+      // TODO (production): mark the order as failed and notify the customer.
+      console.warn(`Payment failed for Checkout Session ${session.id}`);
+      break;
+    default:
+      // Other event types aren't used by this app.
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -104,6 +152,8 @@ app.post('/create-checkout-session', async (req, res) => {
  *
  * - No session ID, or an ID Stripe doesn't recognize: redirects to the store.
  * - Session still open (payment failed or was canceled): back to the book's checkout page.
+ * - Payment still processing: asks the customer to refresh later. Each load
+ *   reads the latest status from Stripe.
  * @see https://docs.stripe.com/api/checkout/sessions/retrieve
  */
 app.get('/success', async (req, res) => {
@@ -129,9 +179,13 @@ app.get('/success', async (req, res) => {
     return res.redirect(`/checkout?bookId=${encodeURIComponent(bookId)}`);
   }
 
+  const paid = session.payment_status === 'paid';
   const paymentIntent = session.payment_intent;
   res.render('success', {
-    paid: session.payment_status === 'paid',
+    paid,
+    // A delayed payment method (e.g. a bank debit) was declined after checkout.
+    failed: !paid && paymentIntent?.status === 'requires_payment_method',
+    bookId,
     amount: session.amount_total,
     paymentIntentId: paymentIntent?.id,
     book: getBook(bookId),

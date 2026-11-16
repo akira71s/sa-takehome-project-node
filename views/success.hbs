@@ -34,13 +34,22 @@
           </dl>
         </div>
       </div>
+    {{else if failed}}
+      <div class="mt-40 text-center">
+        <h1 class="text-danger">
+          <i class="fas fa-times-circle"></i>
+          Payment failed
+        </h1>
+        <p class="mt-20 text-secondary">Your payment couldn't be completed, and you haven't been charged.</p>
+        <a href="/checkout?bookId={{bookId}}" class="btn btn-outline-primary">Try again</a>
+      </div>
     {{else}}
       <div class="mt-40 text-center text-secondary">
         <h1>
           <i class="far fa-clock"></i>
           Payment processing
         </h1>
-        <p class="mt-20">We'll let you know by email once your payment is confirmed.</p>
+        <p class="mt-20">Your payment is being confirmed. Refresh this page in a few minutes to check the status.</p>
       </div>
     {{/if}}
 
