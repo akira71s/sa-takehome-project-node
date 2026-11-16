@@ -15,7 +15,7 @@ Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. T
 ## Contents
 
 - [How to run the app](#how-to-run-the-app)
-- [How to make a test payment](#make-a-test-payment)
+- [How to make a test payment](#how-to-make-a-test-payment)
 - [Architecture](#architecture)
 - [Key design decisions](#key-design-decisions)
 - [Docs](#docs)
@@ -218,7 +218,8 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
 
 | File | What it does |
 |---|---|
-| [`public/js/checkout.js`](public/js/checkout.js) | Mounts the Payment Element and confirms the payment || [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents |
+| [`public/js/checkout.js`](public/js/checkout.js) | Mounts the Payment Element and confirms the payment |
+| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents |
 | [`public/css/custom.css`](public/css/custom.css) | Styles |
 
 ## Key design decisions
@@ -337,7 +338,7 @@ npm uninstall path dotenv
 
 This app covers the core purchase flow. Because it uses Checkout Sessions, much of what a real store needs is a few extra parameters rather than new logic. Roughly in order of priority:
 
-### Reliable order fulfillment (first priority)
+### Reliable order fulfillment
 
 - **An orders database, updated by webhooks.** The app doesn't store orders yet; the webhook only logs confirmed payments. A database would store each order with its Checkout Session and PaymentIntent IDs, make sure each order is fulfilled only once, and support order history, refunds, and customer support. Webhooks should be what keeps it up to date: the browser can close at any time, and some changes never involve the customer at all, such as a delayed payment failing (`checkout.session.async_payment_failed`), a refund issued from the Dashboard (`charge.refunded`), or a dispute (`charge.dispute.created`). Each webhook would update the matching order, with the stored event ID used to skip events that arrive more than once.
 - **A job queue for fulfillment.** Once fulfillment does real work, like sending emails or creating shipments, the webhook should respond to Stripe immediately and hand that work to a background queue.
@@ -354,7 +355,6 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 - **[Product Catalog](https://docs.stripe.com/products-prices/manage-prices).** Change prices in the Dashboard instead of editing and redeploying `books.js`. 
 - **Saved customers.** Stripe Customers with saved payment methods make repeat purchases faster.
 - **A branded payment form.** Style the Payment Element with the [Appearance API](https://docs.stripe.com/elements/appearance-api) to match the store instead of using the default `stripe` theme.
-- **Live status updates.** For payment methods that take time to confirm, push the result to a waiting confirmation page when the webhook arrives, instead of asking the customer to refresh. [Server-Sent Events](https://developer.mozilla.org/docs/Web/API/Server-sent_events) would fit better than WebSockets here: updates only flow from the server to the browser, and SSE needs no extra packages and reconnects automatically.
 
 ### Production readiness
 
