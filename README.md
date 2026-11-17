@@ -318,7 +318,9 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 - [Create a Checkout Session](https://docs.stripe.com/api/checkout/sessions/create): server-side parameters such as `ui_mode` and `return_url`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
 - [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `changeAppearance()`, `loadActions()`
-
+- [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
+- [Elements Appearance API](https://docs.stripe.com/elements/appearance-api): 
+ 
 **Testing**
 
 - [Testing](https://docs.stripe.com/testing): test cards, including 3D Secure and declines
