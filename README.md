@@ -301,7 +301,6 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 
 - [Payment Element overview](https://docs.stripe.com/payments/payment-element): what the Payment Element is and which APIs it works with
   - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
-  - [Elements Appearance API](https://docs.stripe.com/elements/appearance-api): styling the Payment Element and switching themes
 - [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions over the Payment Intents API
 - [Payments quickstart (Checkout Sessions + Payment Element)](https://docs.stripe.com/payments/quickstart): the starting point for the overall flow
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
@@ -319,7 +318,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
 - [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `changeAppearance()`, `loadActions()`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
-- [Elements Appearance API](https://docs.stripe.com/elements/appearance-api): 
+- [Elements Appearance API](https://docs.stripe.com/elements/appearance-api): styling the Payment Element and switching themes
  
 **Testing**
 
