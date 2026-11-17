@@ -2,13 +2,15 @@
 
 By [akira71s](https://github.com/akira71s)
 
-**BookStripes** is an online bookstore built with Node.js and Express. The boilerplate store let customers browse books but had no way to take payments. I added checkout with the **Stripe Payment Element**, embedded directly in the store's own checkout page. After paying, customers see a confirmation with the amount charged and the **Stripe PaymentIntent ID** (`pi_...`).
+**BookStripes** is an online bookstore built with Node.js and Express. The boilerplate store let customers browse books but had no way to take payments. 
+
+I added checkout with the **Stripe Payment Element**, embedded directly in the store's own checkout page. After paying, customers see a confirmation with the amount charged and the **Stripe PaymentIntent ID** (`pi_...`).
 
 <p align="center">
   <img alt="BookStripes store page" src="https://github.com/user-attachments/assets/2e29000c-c936-4d49-ae51-95829a5620cf" />
 </p>
 
-**Live demo:** https://akira71s-sa-takehome-project-node.onrender.com/
+**Live demo:** https://akira71s-sa-takehome-project-node.onrender.com/ (deployed to Render)
 
 Pay with test card `4242 4242 4242 4242`, any future expiry date, and any CVC. The demo runs in Stripe test mode, so no real money is charged. It's hosted on Render's free tier and may take up to 30 seconds to wake up on the first visit.
 
@@ -51,7 +53,7 @@ Then open `.env` and paste in your **test-mode** keys from the [API keys page](h
 | ------------------------ | ----------- | -------------------------------------------------------------------------------------------- |
 | `STRIPE_SECRET_KEY`      | `sk_test_`  | Server only. Never share or commit it.                                                       |
 | `STRIPE_PUBLISHABLE_KEY` | `pk_test_`  | Sent to the browser to initialize Stripe.js.                                                 |
-| `STRIPE_WEBHOOK_SECRET`  | `whsec_`    | Optional. Server only. Verifies webhook events (see [step 4](#4-receive-webhooks-optional)). |
+| `STRIPE_WEBHOOK_SECRET`  | `whsec_`    | (Optional) Server only. Verifies webhook events (see [step 4](#4-receive-webhooks-optional)). |
 
 The app checks these values when it starts. If a key is missing or empty, the two keys are swapped, you've pasted live keys instead of test keys, or the webhook secret doesn't start with `whsec_`, it stops and tells you exactly what to fix.
 
@@ -65,7 +67,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 During development, use `npm run dev` instead. It restarts the server automatically when you edit a server-side file (hot deploy).
 
-### (Optional) 4. Format and lint
+### (Optional) 4. Formatter and linter
 
 Run Prettier across the repository with `npm run format`, and check formatting without changing files with `npm run format:check`. Run ESLint on the JavaScript files with `npm run lint`.
 
@@ -136,9 +138,7 @@ Use any future expiry date and any CVC. Stripe's [testing docs](https://docs.str
 2. **Show the payment form.** The server creates a Checkout Session at the book's catalog price, and Stripe.js mounts the Payment Element with the session's client secret.
 3. **Pay.** The customer enters their email and card details and clicks **Pay**. Card details go straight to Stripe, never through the app's server, and Stripe handles 3D Secure if the bank requires it.
 4. **See the confirmation.** Stripe redirects to `/success`, where the server looks up the payment and shows the book, the amount charged, and the PaymentIntent ID.
-5. **Confirm via webhook.** Stripe also sends a `checkout.session.completed` webhook. The server verifies its signature and logs the confirmed payment, even if the customer never reaches `/success`.
-
-If a payment fails, the customer sees the error under the form and can try again. If a payment method takes time to confirm, the confirmation page shows "Payment processing", and refreshing it later shows the result.
+5. (Optional) **Confirm via webhook.** Stripe also sends a `checkout.session.completed` webhook. The server verifies its signature and logs the confirmed payment, even if the customer never reaches `/success`.
 
 ```mermaid
 sequenceDiagram
@@ -233,19 +233,28 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
 
 ### How I approached it
 
-I started by running the boilerplate and reading its code, to see what was already there and what was missing. Then I read Stripe's Payment Element overview and quickstart to understand the whole flow before writing any code. From there I worked in this order: choose the server-side API, bring the outdated dependencies up to date, build the checkout and confirmation pages, add startup checks and error handling, and finally deploy the app and add a webhook endpoint. The sections below explain the main decisions along the way.
+I started by running the boilerplate and reading its code, to see what was already there and what was missing. Then I read Stripe's Payment Element overview and quickstart to understand the whole flow before writing any code. From there I worked in this order: 
+
+1. Choose the server-side API (Checkout Sessions API)
+2. Bring the outdated dependencies up to date
+3. Build the checkout and confirmation pages using Payment Element
+4. Add startup checks (env vars) and error handling
+5. Deploy the app to Render
+6. Add a webhook endpoint
+  
+The sections below explain the main decisions along the way.
 
 ### Checkout Sessions API vs Payment Intents API
 
-The Payment Element works with two server-side APIs: the [Payment Intents API](https://docs.stripe.com/api/payment_intents) and the [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions). The Payment Intents API gives more room to customize, because you build the checkout logic yourself. I chose the Checkout Sessions API because Stripe [recommends it](https://docs.stripe.com/payments/payment-element#compatible-apis) unless you need that level of customization.
+The Payment Element works with two server-side APIs: the [Payment Intents API](https://docs.stripe.com/api/payment_intents) and the [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions). 
 
-Despite the name, this isn't the hosted Stripe Checkout page. The session is created with `ui_mode: 'elements'`, which embeds the Payment Element in the app's own checkout page.
+The Payment Intents API gives more room to customize, because you have flexibility to build the checkout logic yourself. I chose the Checkout Sessions API because Stripe [recommends it](https://docs.stripe.com/payments/payment-element#compatible-apis) unless you need that level of customization.
 
 ### Payment Element layout: `accordion`
 
 The Payment Element can list payment methods as tabs or as an accordion. Stripe's [best practices](https://docs.stripe.com/payments/payment-element/best-practices) suggest choosing the layout that fits your site and confirming it with an A/B test, which is what I'd do for a real store.
 
-For this assignment, I used the `accordion` layout because it's Stripe's default. Stripe [switched the default from tabs to accordion in 2025](https://docs.stripe.com/changelog/basil/2025-03-31/default-layout-of-payment-element), noting that it can improve conversion on mobile, and I assume a default like that is backed by real-world data. I also turned on radio buttons so it's always clear which method is selected.
+For this assignment, I used the `accordion` layout because it's Stripe's default. Stripe [switched the default from tabs to accordion in 2025](https://docs.stripe.com/changelog/basil/2025-03-31/default-layout-of-payment-element), and I assume a default like that is backed by real-world data.
 
 ### One source for prices
 
