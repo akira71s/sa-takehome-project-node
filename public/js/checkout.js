@@ -2,6 +2,16 @@
 const form = document.getElementById('payment-form');
 const submitButton = document.getElementById('submit');
 const messageEl = document.getElementById('payment-message');
+const checkoutCard = document.getElementById('checkout-card');
+const themeButtons = document.querySelectorAll('#appearance-toggle [data-theme]');
+
+// Prebuilt themes from the Stripe Elements Appearance API.
+// @see https://docs.stripe.com/elements/appearance-api#theme
+const APPEARANCES = Object.freeze({
+  stripe: { theme: 'stripe' },
+  flat: { theme: 'flat' },
+  night: { theme: 'night' },
+});
 
 // Stripe setup. The server passes the publishable key and book ID through data- attributes.
 const stripe = Stripe(form.dataset.publishableKey);
@@ -16,7 +26,7 @@ clientSecretPromise.catch((err) => {
 
 const checkout = stripe.initCheckoutElementsSdk({
   clientSecret: clientSecretPromise, // a Promise is accepted
-  elementsOptions: { appearance: { theme: 'stripe' } },
+  elementsOptions: { appearance: APPEARANCES.stripe },
 });
 
 const paymentElement = checkout.createPaymentElement({
@@ -31,7 +41,34 @@ paymentElement.mount('#payment-element');
 
 const actionsPromise = checkout.loadActions();
 
+for (const button of themeButtons) {
+  button.addEventListener('click', () => setTheme(button.dataset.theme));
+}
+
 form.addEventListener('submit', handleSubmit);
+
+/**
+ * Updates the Payment Element's theme via the Appearance API and adapts the
+ * surrounding checkout card to match ('stripe', 'flat', or 'night').
+ *
+ * @param {string} theme - Key in `APPEARANCES`.
+ * @returns {void}
+ */
+function setTheme(theme) {
+  if (!Object.hasOwn(APPEARANCES, theme)) {
+    return;
+  }
+
+  checkout.changeAppearance(APPEARANCES[theme]);
+  checkoutCard.classList.toggle('checkout-card-flat', theme === 'flat');
+  checkoutCard.classList.toggle('checkout-card-night', theme === 'night');
+
+  for (const button of themeButtons) {
+    const isSelected = button.dataset.theme === theme;
+    button.classList.toggle('active', isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+  }
+}
 
 /**
  * Handles the payment form submission: sets the customer's email on the
