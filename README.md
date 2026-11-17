@@ -242,6 +242,7 @@ I started by running the boilerplate and reading its code, to see what was alrea
 4. Add startup checks (env vars) and error handling
 5. Deploy the app to Render
 6. Add a webhook endpoint
+7. Integrate Appearance API
   
 The sections below explain the main decisions along the way.
 
