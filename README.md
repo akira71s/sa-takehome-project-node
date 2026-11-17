@@ -268,7 +268,8 @@ For this assignment, I used the `accordion` layout because it's Stripe's default
 
 Customers care about their brand colors and image, and in many cases they ask whether they can customize the payment UI to match their site. That's one of the main reasons to embed the Payment Element instead of sending shoppers to a hosted checkout page. To demonstrate how that customization works, I added a **Stripe / Flat / Night** theme selector on the checkout page powered by the [Appearance API](https://docs.stripe.com/elements/appearance-api). 
 
-<img width="400" alt="Adobe Express - screen-20261117-153951-1794897584932 mp4~2 (1)" src="https://github.com/user-attachments/assets/79127dc2-b893-4859-8b29-04b62cb87b90" />
+<img width="1080" height="2404" alt="Adobe Express - screen-20261117-153951-1794897584932 mp4~2 (2)" src="https://github.com/user-attachments/assets/c3660d5d-75da-459e-8338-8f71a63529d6" />
+
 
 Clicking a theme calls `checkout.changeAppearance()` to switch the Payment Element between Stripe's three prebuilt themes (`stripe`, `flat`, and `night`) on the fly, without reloading the form or clearing what's already typed, and updates the surrounding card to match. A business with its own visual identity can build on any of these themes with `variables` and `rules` to apply its exact brand colors, fonts, and border styles.
 
