@@ -177,6 +177,7 @@ sequenceDiagram
 | ------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
 | [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions) (`ui_mode: 'elements'`)                                  | Server  | Create the session with the book's price (`create`); get the payment result on the confirmation page (`retrieve`) |
 | [Payment Element](https://docs.stripe.com/payments/payment-element) via [Stripe.js](https://docs.stripe.com/js/custom_checkout) | Browser | Collect payment details, add the customer's email, and confirm the payment                                        |
+| [Elements Appearance API](https://docs.stripe.com/elements/appearance-api)                                                      | Browser | Switch the Payment Element between `stripe`, `flat`, and `night` themes at runtime (`changeAppearance`)           |
 | [Webhooks](https://docs.stripe.com/webhooks)                                                                                    | Server  | Receive `checkout.session.*` events and verify their signatures                                                   |
 
 The PaymentIntent ID comes from the Checkout Session: the server expands `payment_intent` when it retrieves the session, so the app never calls the Payment Intents API directly.
@@ -198,7 +199,7 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
     ├── js/
     │   ├── checkout.js
     │   └── format-amounts.js
-    ├── css/custom.css
+    ├── css/app.css
     └── images/
 ```
 
@@ -223,11 +224,11 @@ The PaymentIntent ID comes from the Checkout Session: the server expands `paymen
 
 **Client-side (browser)**
 
-| File                                                         | What it does                                        |
-| ------------------------------------------------------------ | --------------------------------------------------- |
-| [`public/js/checkout.js`](public/js/checkout.js)             | Mounts the Payment Element and confirms the payment |
-| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents            |
-| [`public/css/custom.css`](public/css/custom.css)             | Styles                                              |
+| File                                                         | What it does                                                            |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| [`public/js/checkout.js`](public/js/checkout.js)             | Mounts the Payment Element, toggles its theme, and confirms the payment |
+| [`public/js/format-amounts.js`](public/js/format-amounts.js) | Shows prices in dollars instead of cents                                |
+| [`public/css/app.css`](public/css/app.css)                   | App-wide styles, checkout theme surfaces, and receipt layout            |
 
 ## Key design decisions
 
@@ -246,6 +247,12 @@ Despite the name, this isn't the hosted Stripe Checkout page. The session is cre
 The Payment Element can list payment methods as tabs or as an accordion. Stripe's [best practices](https://docs.stripe.com/payments/payment-element/best-practices) suggest choosing the layout that fits your site and confirming it with an A/B test, which is what I'd do for a real store.
 
 For this assignment, I used the `accordion` layout because it's Stripe's default. Stripe [switched the default from tabs to accordion in 2025](https://docs.stripe.com/changelog/basil/2025-03-31/default-layout-of-payment-element), noting that it can improve conversion on mobile, and I assume a default like that is backed by real-world data. I also turned on radio buttons so it's always clear which method is selected.
+
+### Customizing the UI with the Appearance API
+
+Customers care about their brand colors and image, and in many cases they ask whether they can customize the payment UI to match their site. That's one of the main reasons to embed the Payment Element instead of sending shoppers to a hosted checkout page.
+
+To demonstrate how that customization works, I added a **Stripe / Flat / Night** theme selector on the checkout page powered by the [Appearance API](https://docs.stripe.com/elements/appearance-api). Clicking a theme calls `checkout.changeAppearance()` to switch the Payment Element between Stripe's three prebuilt themes (`stripe`, `flat`, and `night`) on the fly, without reloading the form or clearing what's already typed, and updates the surrounding card to match. A business with its own visual identity can build on any of these themes with `variables` and `rules` to apply its exact brand colors, fonts, and border styles.
 
 ### One source for prices
 
@@ -275,6 +282,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 
 - [Payment Element overview](https://docs.stripe.com/payments/payment-element): what the Payment Element is and which APIs it works with
   - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
+  - [Elements Appearance API](https://docs.stripe.com/elements/appearance-api): styling the Payment Element and switching themes
 - [Compare the Checkout Sessions and Payment Intents APIs](https://docs.stripe.com/payments/checkout-sessions-and-payment-intents-comparison): why I chose Checkout Sessions over the Payment Intents API
 - [Payments quickstart (Checkout Sessions + Payment Element)](https://docs.stripe.com/payments/quickstart): the starting point for the overall flow
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
@@ -290,7 +298,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 
 - [Create a Checkout Session](https://docs.stripe.com/api/checkout/sessions/create): server-side parameters such as `ui_mode` and `return_url`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
-- [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `loadActions()`
+- [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `changeAppearance()`, `loadActions()`
 
 **Testing**
 
@@ -335,7 +343,7 @@ The boilerplate was last updated in September 2021, about five years ago, and it
 
 **CSS and layout.**
 
-- I removed the `-webkit-` and `-moz-` prefixed `box-shadow` rules (e.g. [custom.css](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/public/css/custom.css#L9-L10)). Every browser that runs Stripe.js today supports plain `box-shadow`.
+- I removed the `-webkit-` and `-moz-` prefixed `box-shadow` rules (e.g. [custom.css](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/public/css/custom.css#L9-L10)) and renamed `custom.css` to `app.css`. Every browser that runs Stripe.js today supports plain `box-shadow`.
 - I added the `viewport` meta tag. Without it, phones show a shrunken desktop layout and Bootstrap's responsive grid doesn't take effect.
 
 **npm packages.**
@@ -375,7 +383,6 @@ This app covers the core purchase flow. Because it uses Checkout Sessions, much 
 - **A cart.** Checkout Sessions accepts multiple line items with quantities.
 - **[Product Catalog](https://docs.stripe.com/products-prices/manage-prices).** Change prices in the Dashboard instead of editing and redeploying `books.js`.
 - **Saved customers.** Stripe Customers with saved payment methods make repeat purchases faster.
-- **A branded payment form.** Style the Payment Element with the [Appearance API](https://docs.stripe.com/elements/appearance-api) to match the store instead of using the default `stripe` theme.
 
 ### Production readiness
 

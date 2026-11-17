@@ -13,7 +13,41 @@
           <span class='amount' data-amount='{{ amount }}'></span>
         </div>
       </div>
-      <div class='card box-shadow mt-40'>
+      <div class='d-flex justify-content-end align-items-center mt-40 mb-2'>
+        <span class='text-secondary small mr-2'>Theme</span>
+        <div
+          id='appearance-toggle'
+          class='btn-group btn-group-sm'
+          role='group'
+          aria-label='Payment form theme'
+        >
+          <button
+            type='button'
+            class='btn btn-outline-secondary active'
+            data-theme='stripe'
+            aria-pressed='true'
+          >
+            Stripe
+          </button>
+          <button
+            type='button'
+            class='btn btn-outline-secondary'
+            data-theme='flat'
+            aria-pressed='false'
+          >
+            Flat
+          </button>
+          <button
+            type='button'
+            class='btn btn-outline-secondary'
+            data-theme='night'
+            aria-pressed='false'
+          >
+            Night
+          </button>
+        </div>
+      </div>
+      <div id='checkout-card' class='card box-shadow'>
         <div class='card-body'>
           <form
             id='payment-form'
