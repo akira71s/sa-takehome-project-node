@@ -271,9 +271,11 @@ For this assignment, I used the `accordion` layout because it's Stripe's default
 
 ### Customizing the UI with the Appearance API
 
-Customers care about their brand colors and image, and in many cases they ask whether they can customize the payment UI to match their site. That's one of the main reasons to embed the Payment Element instead of sending shoppers to a hosted checkout page.
+Customers care about their brand colors and image, and in many cases they ask whether they can customize the payment UI to match their site. That's one of the main reasons to embed the Payment Element instead of sending shoppers to a hosted checkout page. To demonstrate how that customization works, I added a **Stripe / Flat / Night** theme selector on the checkout page powered by the [Appearance API](https://docs.stripe.com/elements/appearance-api). 
 
-To demonstrate how that customization works, I added a **Stripe / Flat / Night** theme selector on the checkout page powered by the [Appearance API](https://docs.stripe.com/elements/appearance-api). Clicking a theme calls `checkout.changeAppearance()` to switch the Payment Element between Stripe's three prebuilt themes (`stripe`, `flat`, and `night`) on the fly, without reloading the form or clearing what's already typed, and updates the surrounding card to match. A business with its own visual identity can build on any of these themes with `variables` and `rules` to apply its exact brand colors, fonts, and border styles.
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/498536a8-7af5-4476-92b7-c4eaf1e3250c" />
+
+Clicking a theme calls `checkout.changeAppearance()` to switch the Payment Element between Stripe's three prebuilt themes (`stripe`, `flat`, and `night`) on the fly, without reloading the form or clearing what's already typed, and updates the surrounding card to match. A business with its own visual identity can build on any of these themes with `variables` and `rules` to apply its exact brand colors, fonts, and border styles.
 
 ### One source for prices
 
