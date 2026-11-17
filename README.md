@@ -63,13 +63,13 @@ npm start
 
 Then open [http://localhost:3000](http://localhost:3000).
 
-During development, use `npm run dev` instead. It restarts the server automatically when you edit a server-side file.
+During development, use `npm run dev` instead. It restarts the server automatically when you edit a server-side file (hot deploy).
 
-### Format and lint
+### (Optional) 4. Format and lint
 
 Run Prettier across the repository with `npm run format`, and check formatting without changing files with `npm run format:check`. Run ESLint on the JavaScript files with `npm run lint`.
 
-### 4. Receive webhooks (optional)
+### (Optional) 5. Receive webhooks 
 
 The app runs without webhooks, but they let the server confirm orders even if the customer closes the tab before the confirmation page loads. To receive them locally, install the [Stripe CLI](https://docs.stripe.com/stripe-cli) and run it in a second terminal:
 
@@ -91,7 +91,7 @@ When deployed, register `https://<your-host>/webhook` as a webhook endpoint in t
 
 ## How to make a test payment
 
-Use the [live demo](https://akira71s-sa-takehome-project-node.onrender.com/) or a local copy at http://localhost:3000. To run it locally, follow [How to run the app](#how-to-run-the-app).
+Use the [live demo (deployed to Render)](https://akira71s-sa-takehome-project-node.onrender.com/) or a local copy at http://localhost:3000. To run it locally, follow [How to run the app](#how-to-run-the-app).
 
 1. Pick a book and click **Purchase**.
 
