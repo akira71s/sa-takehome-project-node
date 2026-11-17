@@ -252,11 +252,6 @@ Stripe offers two main UI options on top of a Checkout Session: [Stripe Checkout
 
 I used the **Payment Element** here because it's a requirement of the assignment—and it gives full control over the page layout, styling, and URL while keeping customers on the store's domain. However, for many lighter use cases or MVPs, **Stripe Checkout** would be a strong first choice: Stripe provides the entire payment page out of the box (including address collection, tax/promo code UI, and mobile optimizations) with minimal frontend payment code to maintain.
 
-### Payment Element vs Stripe-hosted Checkout
-
-Stripe offers two main ways to render a checkout page on top of a Checkout Session: [Stripe-hosted Checkout](https://docs.stripe.com/payments/checkout) (`ui_mode: 'hosted'`) and a custom page with the [Payment Element](https://docs.stripe.com/payments/payment-element) (`ui_mode: 'custom'`).
-
-I used the **Payment Element** here because building a custom checkout flow was a requirement of the assignment—and it gives full control over the page layout, styling, and URL while keeping customers on the store's domain. However, for many lighter use cases or MVPs, **Stripe-hosted Checkout** would be my first choice: Stripe hosts the entire payment page out of the box (including address collection, tax/promo code UI, and mobile optimizations) with zero frontend payment code to maintain.
 ### Checkout Sessions API vs Payment Intents API
 
 The Payment Element works with two server-side APIs: the [Payment Intents API](https://docs.stripe.com/api/payment_intents) and the [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions). 
