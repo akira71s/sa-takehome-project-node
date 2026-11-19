@@ -390,7 +390,7 @@ Using the [Stripe Agent Toolkit](https://docs.stripe.com/agents) (`@stripe/agent
 
 ### Payments
 
-- **Express Checkout Element.** One-click Apple Pay, Google Pay, and Link buttons, especially useful on mobile.
+- **[Express Checkout Element](https://docs.stripe.com/elements/express-checkout-element).** One-click Apple Pay, Google Pay, and Link buttons, especially useful on mobile.
 - **Tax, discounts, and shipping.** Stripe Tax, promotion codes, and shipping rates are all built into Checkout Sessions.
 - **Adaptive Pricing.** Local-currency prices for international customers, available only with Checkout Sessions.
 
