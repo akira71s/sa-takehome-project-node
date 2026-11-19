@@ -318,7 +318,6 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
 - [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `changeAppearance()`, `loadActions()`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
-- [Elements Appearance API](https://docs.stripe.com/elements/appearance-api): styling the Payment Element and switching themes
  
 **Testing**
 
