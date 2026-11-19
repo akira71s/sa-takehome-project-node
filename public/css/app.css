@@ -24,6 +24,8 @@ h4 {
 #appearance-toggle .btn:not(.active) {
   background-color: #ffffff;
 }
+/* Parent container wrapping both the email input and the Payment Element */
+/* This CSS doesn't control the Payment Element's styling - that's managed via the Stripe Appearance API: https://docs.stripe.com/js/custom_checkout/change_appearance */
 #checkout-card {
   transition:
     background-color 0.2s ease,
