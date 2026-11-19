@@ -177,7 +177,7 @@ sequenceDiagram
 | ------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
 | [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions) (`ui_mode: 'elements'`)                                  | Server  | Create the session with the book's price (`create`); get the payment result on the confirmation page (`retrieve`) |
 | [Payment Element](https://docs.stripe.com/payments/payment-element) via [Stripe.js](https://docs.stripe.com/js/custom_checkout) | Browser | Collect payment details, add the customer's email, and confirm the payment                                        |
-| [Elements Appearance API](https://docs.stripe.com/elements/appearance-api)                                                      | Browser | Switch the Payment Element between `stripe`, `flat`, and `night` themes at runtime (`changeAppearance`)           |
+| [Elements Appearance API](https://docs.stripe.com/js/custom_checkout/change_appearance)                                                      | Browser | Switch the Payment Element between `stripe`, `flat`, and `night` themes at runtime (`changeAppearance`)           |
 | [Webhooks](https://docs.stripe.com/webhooks)                                                                                    | Server  | Receive `checkout.session.*` events and verify their signatures                                                   |
 
 The PaymentIntent ID comes from the Checkout Session: the server expands `payment_intent` when it retrieves the session, so the app never calls the Payment Intents API directly.
