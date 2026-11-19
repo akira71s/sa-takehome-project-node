@@ -2,6 +2,7 @@
 const form = document.getElementById('payment-form');
 const submitButton = document.getElementById('submit');
 const messageEl = document.getElementById('payment-message');
+// Parent container wrapping both the email input and Payment Element
 const checkoutCard = document.getElementById('checkout-card');
 const themeButtons = document.querySelectorAll('#appearance-toggle [data-theme]');
 
@@ -60,6 +61,7 @@ function setTheme(theme) {
   }
 
   checkout.changeAppearance(APPEARANCES[theme]);
+  // Update the style of the parent container wrapping both the email input and Payment Element
   checkoutCard.classList.toggle('checkout-card-flat', theme === 'flat');
   checkoutCard.classList.toggle('checkout-card-night', theme === 'night');
 
