@@ -409,4 +409,4 @@ Using the [Stripe Agent Toolkit](https://docs.stripe.com/agents) (`@stripe/agent
 
 ### Payment Intents API for customization
 
-- I'd switch to the [Payment Intents API](https://docs.stripe.com/api/payment_intents) if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
+- [Payment Intents API](https://docs.stripe.com/api/payment_intents): preferred option if the store already had its own order system that calculates totals, tax, and discounts, or needed a flow Checkout Sessions doesn't support, such as confirming the payment on the server after custom checks. Customers would see the same Payment Element, but the server would create PaymentIntents instead of Checkout Sessions, and the browser code would use `stripe.elements()` and `stripe.confirmPayment()` to set it up and confirm.
