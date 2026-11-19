@@ -304,7 +304,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 
 ## Docs
 
-**Building it**
+### **Building it**
 
 - [Payment Element overview](https://docs.stripe.com/payments/payment-element): what the Payment Element is and which APIs it works with
   - [Payment Element best practices](https://docs.stripe.com/payments/payment-element/best-practices): layout choice and error handling
@@ -312,25 +312,25 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 - [Payments quickstart (Checkout Sessions + Payment Element)](https://docs.stripe.com/payments/quickstart): the starting point for the overall flow
 - [Payment line items](https://docs.stripe.com/payments/payment-line-items): setting each book's price with `price_data`
 
-**Webhooks**
+### **Webhooks**
 
 - [Receive Stripe events in your webhook endpoint](https://docs.stripe.com/webhooks): setting up the `/webhook` endpoint and registering it in the Dashboard
 - [Verify webhook signatures](https://docs.stripe.com/webhooks/signature): why signature checks need the raw request body
 - [Fulfill orders](https://docs.stripe.com/checkout/fulfillment): which `checkout.session.*` events to handle, and the production design noted in the code's `TODO`s
 - [Stripe CLI](https://docs.stripe.com/stripe-cli): forwarding events to `localhost` with `stripe listen`
 
-[**API references**](#api-references)
+### **API references**
 
 - [Create a Checkout Session](https://docs.stripe.com/api/checkout/sessions/create): server-side parameters such as `ui_mode` and `return_url`
-- [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
+  - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
 - [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `changeAppearance()`, `loadActions()`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
  
-**Testing**
+### **Testing**
 
 - [Testing](https://docs.stripe.com/testing): test cards, including 3D Secure and declines
 
-**Node.js**
+### **Node.js**
 
 - [`process.loadEnvFile()`](https://nodejs.org/api/process.html#processloadenvfilepath): loading `.env` without the `dotenv` package
 
