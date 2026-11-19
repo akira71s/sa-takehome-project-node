@@ -281,6 +281,21 @@ The boilerplate defined prices twice, once in `app.js` and once on the store pag
 
 Stripe's [quickstart](https://docs.stripe.com/payments/quickstart) splits the confirmation into a static `/complete` page and a `/session-status` endpoint that the page's JavaScript calls for the payment result.
 
+server.js
+```javascript
+app.get("/session-status", async (req, res) => {
+  const session = await stripe.checkout.sessions.retrieve(req.query.session_id, {expand: ["payment_intent", "subscription"]});
+  res.send({
+    status: session.status,
+    payment_status: session.payment_status,
+    payment_intent_id: session.payment_intent?.id,
+    payment_intent_status: session.payment_intent?.status,
+    subscription_id: session.payment_intent ? null : session.subscription?.id,
+    subscription_status: session.payment_intent ? null : session.subscription?.status
+  });
+});
+```
+
 Because this app renders its pages on the server, I combined both into a single `/success` route. The server retrieves the Checkout Session and renders the page with the result already in it: one less endpoint, no client-side fetch, and no loading state. In a single-page app (for example, built with React), I'd follow the quickstart's approach instead.
 
 ### Webhooks for payment events
@@ -289,7 +304,7 @@ The `/webhook` endpoint verifies each event's signature and logs confirmed and f
 
 ### Configuration mistakes fail early
 
-`config.js` runs before anything else and checks that both Stripe keys are set and look right. They can come from a local `.env` file or, when deployed, from the host's environment variables. Missing keys, swapped keys, live keys, or a malformed webhook secret stop the app at startup with a clear message, instead of surfacing later as a confusing error in the middle of a payment.
+[`config.js`](https://github.com/akira71s/sa-takehome-project-node/blob/main/config.js) runs before anything else and checks that both Stripe keys are set and look right. They can come from a local `.env` file or, when deployed, from the host's environment variables. Missing keys, swapped keys, live keys, or a malformed webhook secret stop the app at startup with a clear message, instead of surfacing later as a confusing error in the middle of a payment.
 
 ### Errors never show internals
 
