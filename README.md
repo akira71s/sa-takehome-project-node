@@ -401,7 +401,6 @@ Using the [Stripe Agent Toolkit](https://docs.stripe.com/agents) (`@stripe/agent
 
 - **A cart.** Checkout Sessions accepts multiple line items with quantities.
 - **[Product Catalog](https://docs.stripe.com/products-prices/manage-prices).** Change prices in the Dashboard instead of editing and redeploying `books.js`.
-- **Saved customers.** Stripe Customers with saved payment methods make repeat purchases faster.
 
 ### Production readiness
 
