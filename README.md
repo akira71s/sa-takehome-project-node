@@ -275,7 +275,7 @@ Clicking a theme calls `checkout.changeAppearance()` to switch the Payment Eleme
 
 ### One source for prices
 
-The boilerplate defined prices twice, once in `app.js` and once on the store page, and its history shows they once drifted apart. Now `books.js` is the only place prices live: the store page is rendered from it, and the server looks up the price from it when creating the Checkout Session. The browser only sends a book ID, so it can't change what a customer is charged.
+The boilerplate defined prices twice, once in [`app.js`](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/app.js#L34) and [once on the store page](https://github.com/mattmitchell6/sa-takehome-project-node/blob/master/views/index.hbs#L19). Now [`books.js`](https://github.com/akira71s/sa-takehome-project-node/blob/main/books.js) is the only place prices live: the store page is rendered from it, and the server looks up the price from it when creating the Checkout Session. The browser only sends a book ID, so it can't change what a customer is charged.
 
 ### Confirmation page: one server-rendered route
 
