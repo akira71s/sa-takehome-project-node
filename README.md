@@ -173,14 +173,7 @@ sequenceDiagram
 
 ### Stripe APIs used
 
-| API                                                                                                                             | Where   | Purpose                                                                                                           |
-| ------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
-| [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions) (`ui_mode: 'elements'`)                                  | Server  | Create the session with the book's price (`create`); get the payment result on the confirmation page (`retrieve`) |
-| [Payment Element](https://docs.stripe.com/payments/payment-element) via [Stripe.js](https://docs.stripe.com/js/custom_checkout) | Browser | Collect payment details, add the customer's email, and confirm the payment                                        |
-| [Elements Appearance API](https://docs.stripe.com/js/custom_checkout/change_appearance)                                                      | Browser | Switch the Payment Element between `stripe`, `flat`, and `night` themes at runtime (`changeAppearance`)           |
-| [Webhooks](https://docs.stripe.com/webhooks)                                                                                    | Server  | Receive `checkout.session.*` events and verify their signatures                                                   |
-
-The PaymentIntent ID comes from the Checkout Session: the server expands `payment_intent` when it retrieves the session, so the app never calls the Payment Intents API directly.
+See [API References](#api-references)
 
 ### File structure
 
@@ -256,7 +249,7 @@ I used the **Payment Element** here because it's a requirement of the assignment
 
 The Payment Element works with two server-side APIs: the [Payment Intents API](https://docs.stripe.com/api/payment_intents) and the [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions). 
 
-The Payment Intents API gives more room to customize, because you have flexibility to build the checkout logic yourself. I chose the Checkout Sessions API because Stripe [recommends it](https://docs.stripe.com/payments/payment-element#compatible-apis) unless you need that level of customization.
+The Payment Intents API gives more room to customize, because you have flexibility to build the checkout logic yourself. I chose the **Checkout Sessions API** because Stripe [recommends it](https://docs.stripe.com/payments/payment-element#compatible-apis) unless you need that level of customization.
 
 ### Payment Element layout: `accordion`
 
@@ -266,12 +259,11 @@ For this assignment, I used the `accordion` layout because it's Stripe's default
 
 ### Customizing the UI with the Appearance API
 
-Customers care about their brand colors and image, and in many cases they ask whether they can customize the payment UI to match their site. That's one of the main reasons to embed the Payment Element instead of sending shoppers to a hosted checkout page. To demonstrate how that customization works, I added a **Stripe / Flat / Night** theme selector on the checkout page powered by the [Appearance API](https://docs.stripe.com/elements/appearance-api). 
+Customers care about their brand colors and image, and in many cases they ask whether they can customize the payment UI to match their site. That's one of the main reasons to embed the Payment Element instead of sending shoppers to a hosted checkout page. To demonstrate how that customization works, I added a **Stripe / Flat / Night** theme selector on the checkout page.
 
 <img width="400" alt="Adobe Express - screen-20261117-153951-1794897584932 mp4~2 (2)" src="https://github.com/user-attachments/assets/c3660d5d-75da-459e-8338-8f71a63529d6" />
 
-
-Clicking a theme calls `checkout.changeAppearance()` to switch the Payment Element between Stripe's three prebuilt themes (`stripe`, `flat`, and `night`) on the fly, without reloading the form or clearing what's already typed, and updates the surrounding card to match. A business with its own visual identity can build on any of these themes with `variables` and `rules` to apply its exact brand colors, fonts, and border styles.
+Clicking a theme calls [`checkout.changeAppearance()`](https://docs.stripe.com/js/custom_checkout/change_appearance) to switch the Payment Element between Stripe's three prebuilt themes (`stripe`, `flat`, and `night`) on the fly, without reloading the form or clearing what's already typed, and updates the surrounding card to match. A business with its own visual identity can build on any of these themes with `variables` and `rules` to apply its exact brand colors, fonts, and border styles.
 
 ### One source for prices
 
@@ -279,7 +271,7 @@ The boilerplate defined prices twice, once in [`app.js`](https://github.com/matt
 
 ### Confirmation page: one server-rendered route
 
-Stripe's [quickstart](https://docs.stripe.com/payments/quickstart) splits the confirmation into a static `/complete` page and a `/session-status` endpoint that the page's JavaScript calls for the payment result.
+Stripe's [quickstart](https://docs.stripe.com/payments/quickstart) splits the confirmation into a static **`/complete`** page and a **`/session-status`** endpoint that the page's JavaScript calls for the payment result.
 
 server.js
 ```javascript
@@ -327,7 +319,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
 - [Fulfill orders](https://docs.stripe.com/checkout/fulfillment): which `checkout.session.*` events to handle, and the production design noted in the code's `TODO`s
 - [Stripe CLI](https://docs.stripe.com/stripe-cli): forwarding events to `localhost` with `stripe listen`
 
-**API references**
+[**API references**](#api-references)
 
 - [Create a Checkout Session](https://docs.stripe.com/api/checkout/sessions/create): server-side parameters such as `ui_mode` and `return_url`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
@@ -401,7 +393,6 @@ Using the [Stripe Agent Toolkit](https://docs.stripe.com/agents) (`@stripe/agent
 ### Reliable order fulfillment
 
 - **An orders database, updated by webhooks.** The app doesn't store orders yet; the webhook only logs confirmed payments. A database would store each order with its Checkout Session and PaymentIntent IDs, make sure each order is fulfilled only once, and support order history, refunds, and customer support. Webhooks should be what keeps it up to date: the browser can close at any time, and some changes never involve the customer at all, such as a delayed payment failing (`checkout.session.async_payment_failed`), a refund issued from the Dashboard (`charge.refunded`), or a dispute (`charge.dispute.created`). Each webhook would update the matching order, with the stored event ID used to skip events that arrive more than once.
-- **A job queue for fulfillment.** Once fulfillment does real work, like sending emails or creating shipments, the webhook should respond to Stripe immediately and hand that work to a background queue.
 
 ### Payments
 
