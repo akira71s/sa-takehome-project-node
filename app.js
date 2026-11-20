@@ -50,7 +50,9 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
 
   const session = event.data.object;
   switch (event.type) {
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.completed
     case 'checkout.session.completed':
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_succeeded
     case 'checkout.session.async_payment_succeeded':
       if (session.payment_status !== 'unpaid') {
         // TODO (production): mark the order as paid in the database and start
@@ -59,6 +61,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
         console.log(`Payment confirmed for Checkout Session ${session.id}`);
       }
       break;
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_failed 
     case 'checkout.session.async_payment_failed':
       // TODO (production): mark the order as failed and notify the customer.
       console.warn(`Payment failed for Checkout Session ${session.id}`);
