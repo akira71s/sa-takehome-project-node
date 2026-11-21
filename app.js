@@ -135,6 +135,7 @@ app.post('/create-checkout-session', async (req, res) => {
             unit_amount: book.amount,
             product_data: { name: book.title },
           },
+          // TODO: accept a quantity from the request instead of hardcoding 1
           quantity: 1,
         },
       ],
