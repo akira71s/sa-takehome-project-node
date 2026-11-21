@@ -17,6 +17,7 @@ const APPEARANCES = Object.freeze({
 // Stripe setup. The server passes the publishable key and book ID through data- attributes.
 const stripe = Stripe(form.dataset.publishableKey);
 
+// Fetch the Checkout Session's client secret from server-side at /create-checkout-session
 const clientSecretPromise = getClientSecret();
 // If the server can't create a Checkout Session, tell the customer instead of
 // leaving an empty form.
