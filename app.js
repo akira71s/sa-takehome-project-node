@@ -51,8 +51,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const session = event.data.object;
   switch (event.type) {
     // https://docs.stripe.com/api/events/types#event_types-checkout.session.completed
-    case 'checkout.session.completed':
     // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_succeeded
+    case 'checkout.session.completed':
     case 'checkout.session.async_payment_succeeded':
       if (session.payment_status !== 'unpaid') {
         // TODO (production): mark the order as paid in the database and start
