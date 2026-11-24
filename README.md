@@ -152,12 +152,12 @@ sequenceDiagram
     Server-->>Browser: Checkout page (title, price, publishable key)
 
     Browser->>Server: POST /create-checkout-session (bookId)
-    Server->>Stripe: Create Checkout Session (ui_mode: elements, catalog price)
+    Server->>Stripe: Create Checkout Session (ui_mode: elements, return_url, meta_Data, line_items (price_data.currency, price_data.unit_amount, price_data.product_data.name... , quantity))
     Stripe-->>Server: Session with client secret
     Server-->>Browser: clientSecret
     Browser->>Stripe: Mount Payment Element (Stripe.js)
 
-    Customer->>Browser: Enters email and card, clicks Pay
+    Customer->>Browser: (on /checkout?bookId=..;) Enters email and card, clicks Pay
     Browser->>Stripe: Update email, confirm payment
     Note over Browser,Stripe: 3D Secure challenge if the bank requires it
     Stripe-->>Browser: Redirect to /success?session_id=...
