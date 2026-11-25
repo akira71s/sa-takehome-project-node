@@ -20,59 +20,7 @@ app.locals.appName = 'BookStripes';
 // View engine (Handlebars)
 app.engine('hbs', engine({ defaultLayout: 'main', extname: '.hbs' }));
 app.set('view engine', 'hbs');
-
 app.use(express.static(path.join(__dirname, 'public')));
-
-/**
- * POST /webhook
- * Receives payment events from Stripe, even if the customer never reaches the
- * confirmation page.
- *
- * Registered before express.json(): signature verification needs the raw body.
- * Responds 400 if the signature is invalid, or 503 if no signing secret is set.
- * @see https://docs.stripe.com/webhooks
- * @see https://docs.stripe.com/checkout/fulfillment
- */
-app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret) {
-    return res.status(503).send('Webhooks are not configured.');
-  }
-
-  let event;
-  try {
-    // https://docs.stripe.com/events/manage-webhook-endpoints?locale=en#signature-errors
-    event = stripe.webhooks.constructEvent(req.body, req.get('stripe-signature'), secret);
-  } catch (err) {
-    console.warn(`Webhook signature verification failed: ${err.message}`);
-    return res.status(400).send('Invalid signature.');
-  }
-
-  const session = event.data.object;
-  switch (event.type) {
-    // https://docs.stripe.com/api/events/types#event_types-checkout.session.completed
-    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_succeeded
-    case 'checkout.session.completed':
-    case 'checkout.session.async_payment_succeeded':
-      if (session.payment_status !== 'unpaid') {
-        // TODO (production): mark the order as paid in the database and start
-        // fulfillment. Store event.id and skip events that were already
-        // processed, since Stripe can deliver the same event more than once.
-        console.log(`Payment confirmed for Checkout Session ${session.id}`);
-      }
-      break;
-    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_failed 
-    case 'checkout.session.async_payment_failed':
-      // TODO (production): mark the order as failed and notify the customer.
-      console.warn(`Payment failed for Checkout Session ${session.id}`);
-      break;
-    default:
-    // Other event types aren't used by this app.
-  }
-
-  res.json({ received: true });
-});
-
 app.use(express.json());
 
 /**
@@ -103,52 +51,6 @@ app.get('/checkout', (req, res) => {
     amount: book.amount,
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
   });
-});
-
-/**
- * POST /create-checkout-session
- * Body: { bookId: string }
- *
- * Creates a Checkout Session (ui_mode: 'elements') for the given book and
- * returns its client secret, which the browser uses to mount the Payment Element.
- * The price always comes from the catalog on the server, never from the request.
- *
- * Responds 400 if the bookId is unknown, or 500 if Stripe returns an error.
- * @see https://docs.stripe.com/api/checkout/sessions/create
- */
-app.post('/create-checkout-session', async (req, res) => {
-  const { bookId } = req.body;
-  const book = getBook(bookId);
-
-  if (!book) {
-    return res.status(400).json({ error: `Unknown bookId: ${bookId}` });
-  }
-
-  try {
-    const session = await stripe.checkout.sessions.create({
-      ui_mode: 'elements',
-      mode: 'payment',
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            unit_amount: book.amount,
-            product_data: { name: book.title },
-          },
-          // TODO: accept a quantity from the request instead of hardcoding 1
-          quantity: 1,
-        },
-      ],
-      // Stripe replaces {CHECKOUT_SESSION_ID} with the real ID when redirecting
-      return_url: `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`,
-      metadata: { bookId },
-    });
-
-    res.json({ clientSecret: session.client_secret });
-  } catch (err) {
-    console.error(`Could not create Checkout Session: ${err.message}`);
-    res.status(500).json({ error: 'Could not start checkout. Please try again.' });
-  }
 });
 
 /**
@@ -203,6 +105,52 @@ app.get('/success', async (req, res) => {
 });
 
 /**
+ * POST /create-checkout-session
+ * Body: { bookId: string }
+ *
+ * Creates a Checkout Session (ui_mode: 'elements') for the given book and
+ * returns its client secret, which the browser uses to mount the Payment Element.
+ * The price always comes from the catalog on the server, never from the request.
+ *
+ * Responds 400 if the bookId is unknown, or 500 if Stripe returns an error.
+ * @see https://docs.stripe.com/api/checkout/sessions/create
+ */
+app.post('/create-checkout-session', async (req, res) => {
+  const { bookId } = req.body;
+  const book = getBook(bookId);
+
+  if (!book) {
+    return res.status(400).json({ error: `Unknown bookId: ${bookId}` });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      ui_mode: 'elements',
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: book.amount,
+            product_data: { name: book.title },
+          },
+          // TODO: accept a quantity from the request instead of hardcoding 1
+          quantity: 1,
+        },
+      ],
+      // Stripe replaces {CHECKOUT_SESSION_ID} with the real ID when redirecting
+      return_url: `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`,
+      metadata: { bookId },
+    });
+
+    res.json({ clientSecret: session.client_secret });
+  } catch (err) {
+    console.error(`Could not create Checkout Session: ${err.message}`);
+    res.status(500).json({ error: 'Could not start checkout. Please try again.' });
+  }
+});
+
+/**
  * Catch-all for unknown URLs. Shows the friendly error page instead of
  * Express's default "Cannot GET" page.
  */
@@ -229,4 +177,54 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+});
+
+/**
+ * POST /webhook
+ * Receives payment events from Stripe, even if the customer never reaches the
+ * confirmation page.
+ *
+ * Registered before express.json(): signature verification needs the raw body.
+ * Responds 400 if the signature is invalid, or 503 if no signing secret is set.
+ * @see https://docs.stripe.com/webhooks
+ * @see https://docs.stripe.com/checkout/fulfillment
+ */
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    return res.status(503).send('Webhooks are not configured.');
+  }
+
+  let event;
+  try {
+    // https://docs.stripe.com/events/manage-webhook-endpoints?locale=en#signature-errors
+    event = stripe.webhooks.constructEvent(req.body, req.get('stripe-signature'), secret);
+  } catch (err) {
+    console.warn(`Webhook signature verification failed: ${err.message}`);
+    return res.status(400).send('Invalid signature.');
+  }
+
+  const session = event.data.object;
+  switch (event.type) {
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.completed
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_succeeded
+    case 'checkout.session.completed':
+    case 'checkout.session.async_payment_succeeded':
+      if (session.payment_status !== 'unpaid') {
+        // TODO (production): mark the order as paid in the database and start
+        // fulfillment. Store event.id and skip events that were already
+        // processed, since Stripe can deliver the same event more than once.
+        console.log(`Payment confirmed for Checkout Session ${session.id}`);
+      }
+      break;
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_failed 
+    case 'checkout.session.async_payment_failed':
+      // TODO (production): mark the order as failed and notify the customer.
+      console.warn(`Payment failed for Checkout Session ${session.id}`);
+      break;
+    default:
+    // Other event types aren't used by this app.
+  }
+
+  res.json({ received: true });
 });
