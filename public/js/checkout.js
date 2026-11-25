@@ -31,11 +31,19 @@ const checkout = stripe.initCheckoutElementsSdk({
   elementsOptions: { appearance: APPEARANCES.stripe },
 });
 
+// https://docs.stripe.com/payments/payment-element?layout=accordion-with-radio-buttons
 const paymentElement = checkout.createPaymentElement({
   layout: {
-    type: 'accordion',
-    defaultCollapsed: false,
+    // same as defualt 
+    type: 'accordion', 
+    // When you leave this undefined, Stripe renders the experience that it determines will have the best conversion.
+    // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout-defaultCollapsed
+    defaultCollapsed: false, 
+    // defalut - 'auto'
+    // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout-radios
     radios: 'always',
+    // only applicable when the type is 'accordion'
+    // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout-spacedAccordionItems
     spacedAccordionItems: false,
   },
 });
