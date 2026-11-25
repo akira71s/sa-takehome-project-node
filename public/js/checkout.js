@@ -33,18 +33,11 @@ const checkout = stripe.initCheckoutElementsSdk({
 
 // https://docs.stripe.com/payments/payment-element?layout=accordion-with-radio-buttons
 const paymentElement = checkout.createPaymentElement({
+  // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout
   layout: {
-    // same as defualt
+    // https://docs.stripe.com/changelog/basil/2025-03-31/default-layout-of-payment-element
+    // same as defualt layout: 'accordion', but explicitly set here to demonstrate how to change it
     type: 'accordion',
-    // When you leave this undefined, Stripe renders the experience that it determines will have the best conversion.
-    // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout-defaultCollapsed
-    defaultCollapsed: false,
-    // defalut - 'auto'
-    // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout-radios
-    radios: 'always',
-    // only applicable when the type is 'accordion'
-    // https://docs.stripe.com/js/elements_object/create_payment_element#payment_element_create-options-layout-spacedAccordionItems
-    spacedAccordionItems: false,
   },
 });
 paymentElement.mount('#payment-element');
