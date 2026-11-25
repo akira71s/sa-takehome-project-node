@@ -5,6 +5,11 @@ const messageEl = document.getElementById('payment-message');
 // Parent container wrapping both the email input and Payment Element
 const checkoutCard = document.getElementById('checkout-card');
 const themeButtons = document.querySelectorAll('#appearance-toggle [data-theme]');
+// Event listeners
+for (const button of themeButtons) {
+  button.addEventListener('click', () => setTheme(button.dataset.theme));
+}
+form.addEventListener('submit', handleSubmit);
 
 // Prebuilt themes from the Stripe Elements Appearance API.
 // @see https://docs.stripe.com/elements/appearance-api#theme
@@ -44,36 +49,6 @@ paymentElement.mount('#payment-element');
 // https://docs.stripe.com/js/custom_checkout/checkout_object
 // After calling initCheckoutElementsSdk, use loadActions() to access methods for reading and manipulating Checkout Sessions.
 const actionsPromise = checkout.loadActions();
-
-for (const button of themeButtons) {
-  button.addEventListener('click', () => setTheme(button.dataset.theme));
-}
-
-form.addEventListener('submit', handleSubmit);
-
-/**
- * Updates the Payment Element's theme via the Appearance API and adapts the
- * surrounding checkout card to match ('stripe', 'flat', or 'night').
- *
- * @param {string} theme - Key in `APPEARANCES`.
- * @returns {void}
- */
-function setTheme(theme) {
-  if (!Object.hasOwn(APPEARANCES, theme)) {
-    return;
-  }
-
-  checkout.changeAppearance(APPEARANCES[theme]);
-  // Update the style of the parent container wrapping both the email input and Payment Element
-  checkoutCard.classList.toggle('checkout-card-flat', theme === 'flat');
-  checkoutCard.classList.toggle('checkout-card-night', theme === 'night');
-
-  for (const button of themeButtons) {
-    const isSelected = button.dataset.theme === theme;
-    button.classList.toggle('active', isSelected);
-    button.setAttribute('aria-pressed', String(isSelected));
-  }
-}
 
 /**
  * Handles the payment form submission: sets the customer's email on the
@@ -147,4 +122,28 @@ function showError(message) {
  */
 function setLoading(isLoading) {
   submitButton.disabled = isLoading;
+}
+
+/**
+ * Updates the Payment Element's theme via the Appearance API and adapts the
+ * surrounding checkout card to match ('stripe', 'flat', or 'night').
+ *
+ * @param {string} theme - Key in `APPEARANCES`.
+ * @returns {void}
+ */
+function setTheme(theme) {
+  if (!Object.hasOwn(APPEARANCES, theme)) {
+    return;
+  }
+
+  checkout.changeAppearance(APPEARANCES[theme]);
+  // Update the style of the parent container wrapping both the email input and Payment Element
+  checkoutCard.classList.toggle('checkout-card-flat', theme === 'flat');
+  checkoutCard.classList.toggle('checkout-card-night', theme === 'night');
+
+  for (const button of themeButtons) {
+    const isSelected = button.dataset.theme === theme;
+    button.classList.toggle('active', isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+  }
 }
