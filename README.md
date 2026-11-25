@@ -2,7 +2,7 @@
 
 By [akira71s](https://github.com/akira71s)
 
-**BookStripes** is an online bookstore built with Node.js and Express. The boilerplate store let customers browse books but had no way to take payments. 
+**BookStripes** is an online bookstore built with Node.js and Express. The boilerplate store let customers browse books but had no way to take payments.
 
 I added checkout with the **Stripe Payment Element**, embedded directly in the store's own checkout page. After paying, customers see a confirmation with the amount charged and the **Stripe PaymentIntent ID** (`pi_...`).
 
@@ -49,10 +49,10 @@ cp sample.env .env
 
 Then open `.env` and paste in your **test-mode** keys from the [API keys page](https://dashboard.stripe.com/test/apikeys) in the Stripe Dashboard:
 
-| Variable                 | Starts with | Where it's used                                                                              |
-| ------------------------ | ----------- | -------------------------------------------------------------------------------------------- |
-| `STRIPE_SECRET_KEY`      | `sk_test_`  | Server only. Never share or commit it.                                                       |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_test_`  | Sent to the browser to initialize Stripe.js.                                                 |
+| Variable                 | Starts with | Where it's used                                                                               |
+| ------------------------ | ----------- | --------------------------------------------------------------------------------------------- |
+| `STRIPE_SECRET_KEY`      | `sk_test_`  | Server only. Never share or commit it.                                                        |
+| `STRIPE_PUBLISHABLE_KEY` | `pk_test_`  | Sent to the browser to initialize Stripe.js.                                                  |
 | `STRIPE_WEBHOOK_SECRET`  | `whsec_`    | (Optional) Server only. Verifies webhook events (see [step 4](#4-receive-webhooks-optional)). |
 
 The app checks these values when it starts. If a key is missing or empty, the two keys are swapped, you've pasted live keys instead of test keys, or the webhook secret doesn't start with `whsec_`, it stops and tells you exactly what to fix.
@@ -71,7 +71,7 @@ During development, use `npm run dev` instead. It restarts the server automatica
 
 Run Prettier across the repository with `npm run format`, and check formatting without changing files with `npm run format:check`. Run ESLint on the JavaScript files with `npm run lint`.
 
-### (Optional) 5. Receive webhooks 
+### (Optional) 5. Receive webhooks
 
 The app runs without webhooks, but they let the server confirm orders even if the customer closes the tab before the confirmation page loads. To receive them locally, install the [Stripe CLI](https://docs.stripe.com/stripe-cli) and run it in a second terminal:
 
@@ -227,7 +227,7 @@ See [API References](#api-references)
 
 ### How I approached it
 
-I started by running the boilerplate and reading its code, to see what was already there and what was missing. Then I read Stripe's Payment Element overview and quickstart to understand the whole flow before writing any code. From there I worked in this order: 
+I started by running the boilerplate and reading its code, to see what was already there and what was missing. Then I read Stripe's Payment Element overview and quickstart to understand the whole flow before writing any code. From there I worked in this order:
 
 1. Choose the server-side API (Checkout Sessions API)
 2. Bring the outdated dependencies up to date
@@ -236,7 +236,7 @@ I started by running the boilerplate and reading its code, to see what was alrea
 5. Deploy the app to Render
 6. Add a webhook endpoint
 7. Integrate Appearance API
-  
+
 The sections below explain the main decisions along the way.
 
 ### Payment Element vs Stripe Checkout
@@ -247,7 +247,7 @@ I used the **Payment Element** here because it's a requirement of the assignment
 
 ### Checkout Sessions API vs Payment Intents API
 
-The Payment Element works with two server-side APIs: the [Payment Intents API](https://docs.stripe.com/api/payment_intents) and the [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions). 
+The Payment Element works with two server-side APIs: the [Payment Intents API](https://docs.stripe.com/api/payment_intents) and the [Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions).
 
 The Payment Intents API gives more room to customize, because you have flexibility to build the checkout logic yourself. I chose the **Checkout Sessions API** because Stripe [recommends it](https://docs.stripe.com/payments/payment-element#compatible-apis) unless you need that level of customization.
 
@@ -274,16 +274,19 @@ The boilerplate defined prices twice, once in [`app.js`](https://github.com/matt
 Stripe's [quickstart](https://docs.stripe.com/payments/quickstart) splits the confirmation into a static **`/complete`** page and a **`/session-status`** endpoint that the page's JavaScript calls for the payment result.
 
 server.js
+
 ```javascript
-app.get("/session-status", async (req, res) => {
-  const session = await stripe.checkout.sessions.retrieve(req.query.session_id, {expand: ["payment_intent", "subscription"]});
+app.get('/session-status', async (req, res) => {
+  const session = await stripe.checkout.sessions.retrieve(req.query.session_id, {
+    expand: ['payment_intent', 'subscription'],
+  });
   res.send({
     status: session.status,
     payment_status: session.payment_status,
     payment_intent_id: session.payment_intent?.id,
     payment_intent_status: session.payment_intent?.status,
     subscription_id: session.payment_intent ? null : session.subscription?.id,
-    subscription_status: session.payment_intent ? null : session.subscription?.status
+    subscription_status: session.payment_intent ? null : session.subscription?.status,
   });
 });
 ```
@@ -325,7 +328,7 @@ An unknown book, an unknown URL, an invalid session ID, or a failed Stripe API c
   - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
 - [Elements with the Checkout Sessions API (Stripe.js)](https://docs.stripe.com/js/custom_checkout): `initCheckoutElementsSdk()`, `createPaymentElement()`, `changeAppearance()`, `loadActions()`
 - [The Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object): `client_secret`, `payment_status`, and expanding `payment_intent`
- 
+
 ### **Testing**
 
 - [Testing](https://docs.stripe.com/testing): test cards, including 3D Secure and declines
@@ -388,6 +391,7 @@ npm uninstall path dotenv
 This app covers the core purchase flow. Because it uses Checkout Sessions, much of what a real store needs is a few extra parameters rather than new logic. Roughly in order of priority:
 
 ### AI Agent Integration (Stripe Agent Toolkit)
+
 Using the [Stripe Agent Toolkit](https://docs.stripe.com/agents) (`@stripe/agent-toolkit`) and Stripe's Model Context Protocol (MCP) server, BookStripes could expose safe, scoped Stripe operations to an LLM-powered shopping assistant. Customers could ask for book recommendations in natural language, generate Payment Links or Checkout Sessions dynamically, and check order or refund statuses—governed by restricted API keys with least-privilege permissions.
 
 ### Reliable order fulfillment
