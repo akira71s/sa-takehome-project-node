@@ -65,7 +65,7 @@ npm start
 
 Then open [http://localhost:3000](http://localhost:3000).
 
-During development, use `npm run dev` instead. It restarts the server automatically when you edit a server-side file (hot deploy).
+During development, use `npm run dev` instead (watch mode). It restarts the server automatically when you edit a server-side file - `app.js`.
 
 ### (Optional) 4. Formatter and linter
 
