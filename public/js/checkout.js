@@ -40,7 +40,8 @@ const paymentElement = checkout.createPaymentElement({
   },
 });
 paymentElement.mount('#payment-element');
-
+// https://docs.stripe.com/js/custom_checkout/checkout_object
+// After calling initCheckoutElementsSdk, use loadActions() to access methods for reading and manipulating Checkout Sessions.
 const actionsPromise = checkout.loadActions();
 
 for (const button of themeButtons) {
