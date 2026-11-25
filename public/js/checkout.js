@@ -91,6 +91,7 @@ async function handleSubmit(event) {
   if (loadResult.type === 'error') {
     return showError(loadResult.error.message);
   }
+  // https://docs.stripe.com/js/custom_checkout/checkout_object
   const { actions } = loadResult;
 
   const email = document.getElementById('email').value;
