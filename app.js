@@ -217,7 +217,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
         console.log(`Payment confirmed for Checkout Session ${session.id}`);
       }
       break;
-    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_failed 
+    // https://docs.stripe.com/api/events/types#event_types-checkout.session.async_payment_failed
     case 'checkout.session.async_payment_failed':
       // TODO (production): mark the order as failed and notify the customer.
       console.warn(`Payment failed for Checkout Session ${session.id}`);
