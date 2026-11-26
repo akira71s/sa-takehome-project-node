@@ -8,13 +8,13 @@
       <div class='card box-shadow mb-4'>
         <img class='card-img-top' src='{{ image }}' alt='Cover of {{ title }}' />
         <div class='card-body'>
-          <h5 class='card-title'>{{ title }}</h5>
-          <strong>{{ author }}</strong>
-          <p class='card-text mt-20'>{{ description }}</p>
-          <a class='btn btn-primary btn-block' href='/checkout?bookId={{ @key }}'>
-            Purchase — $
-            <span class='amount' data-amount='{{ amount }}'></span>
-          </a>
+          <form action='/checkout' method='get'>
+            <input type='hidden' name='bookId' value='{{ @key }}' />
+            <button class='btn btn-primary btn-block' type='submit'>
+              Purchase — $
+              <span class='amount' data-amount='{{ amount }}'></span>
+            </button>
+          </form>
         </div>
       </div>
     </div>

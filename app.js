@@ -125,8 +125,8 @@ app.post('/create-checkout-session', async (req, res) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'elements',
-      mode: 'payment',
+      ui_mode: 'elements', // or 'hosted_page', 'embedded_page', 'form'
+      mode: 'payment', // or 'subscription' for recurring payments
       line_items: [
         {
           price_data: {
