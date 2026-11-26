@@ -124,6 +124,7 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 
   try {
+    const origin = `${req.protocol}://${req.get('host')}`;
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'elements', // or 'hosted_page', 'embedded_page', 'form'
       mode: 'payment', // or 'subscription' for recurring payments
@@ -139,7 +140,7 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       // Stripe replaces {CHECKOUT_SESSION_ID} with the real ID when redirecting
-      return_url: `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       metadata: { bookId },
     });
 
